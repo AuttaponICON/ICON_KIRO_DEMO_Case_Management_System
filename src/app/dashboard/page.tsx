@@ -1,0 +1,66 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import StatCard from "@/components/StatCard";
+import StatusBadge from "@/components/StatusBadge";
+
+interface RequestItem {
+  id: number; code: string; title: string; location: string;
+  category: string; status: string; createdAt: string;
+}
+
+export default function DashboardPage() {
+  const [requests, setRequests] = useState<RequestItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/requests").then((r) => r.json()).then(setRequests);
+  }, []);
+
+  const total = requests.length;
+  const pending = requests.filter((r) => r.status === "PENDING").length;
+  const inProgress = requests.filter((r) => r.status === "IN_PROGRESS").length;
+  const completed = requests.filter((r) => r.status === "COMPLETED").length;
+  const recent = requests.slice(0, 5);
+
+  return (
+    <>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold">แดชบอร์ด</h2>
+        <p className="text-sm text-slate-500">ภาพรวมการแจ้งซ่อมทั้งหมด</p>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard icon="📋" value={total} label="แจ้งซ่อมทั้งหมด" />
+        <StatCard icon="⏳" value={pending} label="รอดำเนินการ" />
+        <StatCard icon="🔄" value={inProgress} label="กำลังดำเนินการ" />
+        <StatCard icon="✅" value={completed} label="เสร็จสิ้น" />
+      </div>
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-semibold mb-4">รายการแจ้งซ่อมล่าสุด</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-slate-500 uppercase">
+                <th className="pb-3 pr-4">รหัส</th><th className="pb-3 pr-4">รายการ</th>
+                <th className="pb-3 pr-4">สถานที่</th><th className="pb-3 pr-4">สถานะ</th>
+                <th className="pb-3">วันที่</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recent.map((r) => (
+                <tr key={r.id} className="border-t border-slate-100">
+                  <td className="py-3 pr-4">{r.code}</td><td className="py-3 pr-4">{r.title}</td>
+                  <td className="py-3 pr-4">{r.location}</td>
+                  <td className="py-3 pr-4"><StatusBadge status={r.status} /></td>
+                  <td className="py-3">{new Date(r.createdAt).toLocaleDateString("th-TH")}</td>
+                </tr>
+              ))}
+              {recent.length === 0 && (
+                <tr><td colSpan={5} className="py-8 text-center text-slate-400">ไม่มีข้อมูล</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}

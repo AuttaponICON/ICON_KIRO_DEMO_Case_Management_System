@@ -1,0 +1,241 @@
+openapi: 3.0.3
+info:
+  title: ระบบแจ้งซ่อม API
+  description: Maintenance Request System API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: เข้าสู่ระบบ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: "1234"
+      responses:
+        "200":
+          description: Login สำเร็จ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        "401":
+          description: ข้อมูลไม่ถูกต้อง
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: ออกจากระบบ
+      responses:
+        "200":
+          description: Logout สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: ข้อมูลผู้ใช้ปัจจุบัน
+      responses:
+        "200":
+          description: ข้อมูลผู้ใช้
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        "401":
+          description: ยังไม่ได้เข้าสู่ระบบ
+
+  /api/requests:
+    get:
+      tags: [Requests]
+      summary: รายการแจ้งซ่อมทั้งหมด
+      responses:
+        "200":
+          description: รายการแจ้งซ่อม
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Request"
+        "401":
+          description: Unauthorized
+    post:
+      tags: [Requests]
+      summary: สร้างรายการแจ้งซ่อมใหม่
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCreate"
+      responses:
+        "201":
+          description: สร้างสำเร็จ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        "401":
+          description: Unauthorized
+
+  /api/requests/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Requests]
+      summary: ดูรายละเอียดรายการแจ้งซ่อม
+      responses:
+        "200":
+          description: รายละเอียด
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        "404":
+          description: ไม่พบรายการ
+    put:
+      tags: [Requests]
+      summary: แก้ไขรายการแจ้งซ่อม
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestUpdate"
+      responses:
+        "200":
+          description: แก้ไขสำเร็จ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+    delete:
+      tags: [Requests]
+      summary: ลบรายการแจ้งซ่อม
+      responses:
+        "200":
+          description: ลบสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+
+components:
+  schemas:
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+          example: REQ-001
+        title:
+          type: string
+        location:
+          type: string
+        category:
+          type: string
+          enum: [ELECTRICAL, PLUMBING, AC, BUILDING, OTHER]
+        detail:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: integer
+        user:
+          type: object
+          properties:
+            name:
+              type: string
+
+    RequestCreate:
+      type: object
+      required: [title, location, category]
+      properties:
+        title:
+          type: string
+          example: แอร์ไม่เย็น
+        location:
+          type: string
+          example: ห้อง 301
+        category:
+          type: string
+          enum: [ELECTRICAL, PLUMBING, AC, BUILDING, OTHER]
+        detail:
+          type: string
+
+    RequestUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        location:
+          type: string
+        category:
+          type: string
+          enum: [ELECTRICAL, PLUMBING, AC, BUILDING, OTHER]
+        detail:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
