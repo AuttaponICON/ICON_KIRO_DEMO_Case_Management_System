@@ -11,7 +11,7 @@ export default function AssignModal({ open, onClose, onAssign }: Props) {
   const [comment, setComment] = useState("");
 
   useEffect(() => {
-    if (open) fetch("/api/users").then((r) => r.json()).then((data) => { setUsers(data); if (data.length) setAssigneeId(data[0].id); });
+    if (open) fetch("/api/users/members").then((r) => r.json()).then((data) => { setUsers(data); if (data.length) setAssigneeId(data[0].id); });
   }, [open]);
 
   if (!open) return null;

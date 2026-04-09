@@ -130,6 +130,7 @@ export default function RequestsPage() {
                   <td className="py-3 pr-3">{new Date(r.createdAt).toLocaleDateString("th-TH")}</td>
                   <td className="py-3">
                     <div className="flex flex-wrap gap-1">
+                      <button onClick={() => viewDetail(r.id)} className="px-2 py-1 border border-slate-200 rounded text-xs hover:bg-slate-50">📋 ดูรายละเอียด</button>
                       {r.status === "PENDING" && (
                         <>
                           <PermissionGate permissions={perms} required="case:assign">
@@ -170,35 +171,93 @@ export default function RequestsPage() {
       {/* Detail Panel */}
       {detailItem && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-bold">{detailItem.code} — {detailItem.title}</h3>
-              <button onClick={() => setDetailItem(null)} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded">{detailItem.code}</span>
+                  <StatusBadge status={detailItem.status} />
+                </div>
+                <h3 className="text-lg font-bold">{detailItem.title}</h3>
+              </div>
+              <button onClick={() => setDetailItem(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm mb-4">
-              <div><span className="text-slate-500">สถานที่:</span> {detailItem.location}</div>
-              <div><span className="text-slate-500">ประเภท:</span> {categoryLabel[detailItem.category]}</div>
-              <div><span className="text-slate-500">สถานะ:</span> <StatusBadge status={detailItem.status} /></div>
-              <div><span className="text-slate-500">ผู้แจ้ง:</span> {detailItem.creator?.name}</div>
-              <div><span className="text-slate-500">ผู้รับผิดชอบ:</span> {detailItem.assignee?.name || "-"}</div>
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-5 bg-slate-50 rounded-lg p-4">
+              <div><span className="text-slate-400 text-xs block">สถานที่</span><span className="font-medium">{detailItem.location}</span></div>
+              <div><span className="text-slate-400 text-xs block">ประเภท</span><span className="font-medium">{categoryLabel[detailItem.category]}</span></div>
+              <div><span className="text-slate-400 text-xs block">ผู้แจ้ง</span><span className="font-medium">{detailItem.creator?.name || "-"}</span></div>
+              <div><span className="text-slate-400 text-xs block">ผู้รับผิดชอบ</span><span className="font-medium">{detailItem.assignee?.name || "-"}</span></div>
+              <div><span className="text-slate-400 text-xs block">วันที่แจ้ง</span><span className="font-medium">{new Date(detailItem.createdAt).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</span></div>
             </div>
-            {detailItem.detail && <div className="text-sm mb-3"><span className="text-slate-500">รายละเอียด:</span> {detailItem.detail}</div>}
-            {detailItem.rootCause && <div className="text-sm mb-1"><span className="text-slate-500">สาเหตุ:</span> {detailItem.rootCause}</div>}
-            {detailItem.resolution && <div className="text-sm mb-1"><span className="text-slate-500">วิธีแก้ไข:</span> {detailItem.resolution}</div>}
-            {detailItem.cancelReason && <div className="text-sm mb-1"><span className="text-slate-500">เหตุผลยกเลิก:</span> {detailItem.cancelReason}</div>}
-            {detailItem.rejectReason && <div className="text-sm mb-1"><span className="text-slate-500">เหตุผลปฏิเสธ:</span> {detailItem.rejectReason}</div>}
+
+            {detailItem.detail && (
+              <div className="text-sm mb-4 p-3 bg-blue-50 rounded-lg">
+                <span className="text-blue-600 text-xs font-semibold block mb-1">รายละเอียด</span>
+                {detailItem.detail}
+              </div>
+            )}
+
+            {(detailItem.rootCause || detailItem.resolution) && (
+              <div className="text-sm mb-4 p-3 bg-green-50 rounded-lg space-y-1">
+                <span className="text-green-600 text-xs font-semibold block mb-1">ผลการแก้ไข</span>
+                {detailItem.rootCause && <div><span className="text-slate-500">สาเหตุ:</span> {detailItem.rootCause}</div>}
+                {detailItem.resolution && <div><span className="text-slate-500">วิธีแก้ไข:</span> {detailItem.resolution}</div>}
+              </div>
+            )}
+
+            {detailItem.cancelReason && (
+              <div className="text-sm mb-4 p-3 bg-orange-50 rounded-lg">
+                <span className="text-orange-600 text-xs font-semibold block mb-1">เหตุผลยกเลิก</span>
+                {detailItem.cancelReason}
+              </div>
+            )}
+
+            {detailItem.rejectReason && (
+              <div className="text-sm mb-4 p-3 bg-red-50 rounded-lg">
+                <span className="text-red-600 text-xs font-semibold block mb-1">เหตุผลปฏิเสธ</span>
+                {detailItem.rejectReason}
+              </div>
+            )}
+
+            {/* Timeline History */}
             {detailItem.history && detailItem.history.length > 0 && (
-              <div className="mt-4">
-                <h4 className="font-semibold text-sm mb-2">ประวัติ</h4>
-                <div className="space-y-2">
-                  {detailItem.history.map((h) => (
-                    <div key={h.id} className="flex gap-3 text-xs border-l-2 border-indigo-200 pl-3 py-1">
-                      <span className="font-semibold text-indigo-600 min-w-[80px]">{h.action}</span>
-                      <span className="text-slate-500">{h.user?.name}</span>
-                      {h.comment && <span className="text-slate-600">— {h.comment}</span>}
-                      <span className="text-slate-400 ml-auto">{new Date(h.createdAt).toLocaleString("th-TH")}</span>
-                    </div>
-                  ))}
+              <div className="mt-5">
+                <h4 className="font-semibold text-sm mb-3 flex items-center gap-1.5">📋 ประวัติการดำเนินการ</h4>
+                <div className="relative pl-6">
+                  <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-slate-200" />
+                  {detailItem.history.map((h, i) => {
+                    const actionStyle: Record<string, { icon: string; color: string }> = {
+                      CREATED: { icon: "📝", color: "bg-slate-500" },
+                      ASSIGNED: { icon: "👤", color: "bg-blue-500" },
+                      RESOLVED: { icon: "🔧", color: "bg-green-500" },
+                      APPROVED: { icon: "✅", color: "bg-emerald-500" },
+                      REJECTED: { icon: "❌", color: "bg-red-500" },
+                      COMPLETED: { icon: "🎉", color: "bg-green-600" },
+                      CANCELLED: { icon: "🚫", color: "bg-orange-500" },
+                    };
+                    const style = actionStyle[h.action] || { icon: "📌", color: "bg-slate-400" };
+                    const actionLabel: Record<string, string> = {
+                      CREATED: "สร้างรายการ", ASSIGNED: "มอบหมายงาน", RESOLVED: "ส่งผลแก้ไข",
+                      APPROVED: "อนุมัติ", REJECTED: "ปฏิเสธ", COMPLETED: "เสร็จสิ้น", CANCELLED: "ยกเลิก",
+                    };
+                    return (
+                      <div key={h.id} className="relative mb-4 last:mb-0">
+                        <div className={`absolute -left-6 top-0.5 w-[18px] h-[18px] rounded-full ${style.color} flex items-center justify-center text-[10px] z-10`}>
+                          <span>{style.icon}</span>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-semibold">{actionLabel[h.action] || h.action}</span>
+                            <span className="text-xs text-slate-400">{new Date(h.createdAt).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}</span>
+                          </div>
+                          <div className="text-xs text-slate-500">โดย {h.user?.name || "ระบบ"}</div>
+                          {h.comment && <div className="text-xs text-slate-600 mt-1 bg-white rounded px-2 py-1.5 border border-slate-100">{h.comment}</div>}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
