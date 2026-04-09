@@ -23,6 +23,7 @@
     "users": "จัดการผู้ใช้",
     "roles": "จัดการ Role",
     "categories": "ประเภท Case",
+    "masterData": "Master Data",
     "interfaceLogs": "Interface Log",
     "loginLogs": "Login Log",
     "logout": "ออกจากระบบ",
@@ -254,7 +255,8 @@
     "dropzone": "คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่",
     "dropzoneHint": "รองรับ รูปภาพ, วีดีโอ, PDF, Word, Excel",
     "submit": "สร้าง Case",
-    "saving": "กำลังบันทึก..."
+    "saving": "กำลังบันทึก...",
+    "required": "จำเป็นต้องกรอก"
   },
   "common": {
     "loading": "กำลังโหลด...",
@@ -277,6 +279,26 @@
     "editSub": "แก้ไขประเภทย่อย",
     "subItems": "รายการย่อย",
     "subName": "ชื่อประเภทย่อย"
+  },
+  "masterData": {
+    "title": "Master Data",
+    "subtitle": "จัดการข้อมูลหลักสำหรับ Dropdown ต่างๆ",
+    "locations": "สถานที่",
+    "addGroup": "เพิ่มกลุ่ม",
+    "addItem": "เพิ่มรายการ"
+  },
+  "import": {
+    "title": "นำเข้า Case",
+    "subtitle": "นำเข้ารายการแจ้งซ่อมจากไฟล์ Excel",
+    "downloadTemplate": "ดาวน์โหลด Template",
+    "downloadBtn": "ดาวน์โหลด Template Excel",
+    "uploadFile": "อัพโหลดไฟล์",
+    "dropzone": "คลิกเพื่อเลือกไฟล์ Excel (.xlsx)",
+    "preview": "ตัวอย่างข้อมูล",
+    "rows": "รายการ",
+    "importBtn": "นำเข้า",
+    "result": "ผลการนำเข้า",
+    "goToList": "ไปยังรายการ Case"
   },
   "search": {
     "placeholder": "ค้นหา รหัส, รายการ, สถานที่...",

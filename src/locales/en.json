@@ -23,6 +23,7 @@
     "users": "User Management",
     "roles": "Role Management",
     "categories": "Case Categories",
+    "masterData": "Master Data",
     "interfaceLogs": "Interface Log",
     "loginLogs": "Login Log",
     "logout": "Sign Out",
@@ -254,7 +255,8 @@
     "dropzone": "Click to select files or drag & drop here",
     "dropzoneHint": "Supports images, videos, PDF, Word, Excel",
     "submit": "Create Case",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "required": "is required"
   },
   "common": {
     "loading": "Loading...",
@@ -277,6 +279,26 @@
     "editSub": "Edit Sub-Category",
     "subItems": "sub-items",
     "subName": "Sub-Category Name"
+  },
+  "masterData": {
+    "title": "Master Data",
+    "subtitle": "Manage dropdown data for the system",
+    "locations": "Locations",
+    "addGroup": "Add Group",
+    "addItem": "Add Item"
+  },
+  "import": {
+    "title": "Import Cases",
+    "subtitle": "Import maintenance requests from Excel file",
+    "downloadTemplate": "Download Template",
+    "downloadBtn": "Download Excel Template",
+    "uploadFile": "Upload File",
+    "dropzone": "Click to select Excel file (.xlsx)",
+    "preview": "Preview Data",
+    "rows": "rows",
+    "importBtn": "Import",
+    "result": "Import Result",
+    "goToList": "Go to Case List"
   },
   "search": {
     "placeholder": "Search code, item, location...",

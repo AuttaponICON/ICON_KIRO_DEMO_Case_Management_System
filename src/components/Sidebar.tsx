@@ -24,6 +24,7 @@ const navGroups: NavGroup[] = [
       { href: "/dashboard/admin/users", labelKey: "sidebar.users", icon: "👥", permission: "menu:admin" },
       { href: "/dashboard/admin/roles", labelKey: "sidebar.roles", icon: "🔑", permission: "menu:admin" },
       { href: "/dashboard/admin/categories", labelKey: "sidebar.categories", icon: "🏷️", permission: "menu:admin" },
+      { href: "/dashboard/admin/master-data", labelKey: "sidebar.masterData", icon: "📋", permission: "menu:admin" },
     ],
   },
   {

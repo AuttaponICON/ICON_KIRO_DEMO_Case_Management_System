@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import LoadingModal from "@/components/LoadingModal";
 
 interface CatConfig { id: number; key: string; name: string; icon: string; subCategories: { id: number; name: string; slaDays: number }[]; }
 
@@ -16,7 +17,9 @@ export default function CreateCasePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<CatConfig[]>([]);
+  const [locations, setLocations] = useState<{ id: number; name: string; children: { id: number; name: string }[] }[]>([]);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // Form state
   const [title, setTitle] = useState("");
@@ -30,11 +33,8 @@ export default function CreateCasePage() {
   const [files, setFiles] = useState<FileItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/categories").then((r) => r.json()).then((data) => {
-      setCategories(data);
-      if (data.length > 0) setCategoryKey(data[0].key);
-    });
-    // Pre-fill reporter from logged-in user
+    fetch("/api/categories").then((r) => r.json()).then(setCategories);
+    fetch("/api/master/locations").then((r) => r.json()).then(setLocations);
     fetch("/api/auth/me").then((r) => r.json()).then((u) => {
       if (u.name) setReporterName(u.name);
     });
@@ -86,7 +86,12 @@ export default function CreateCasePage() {
   };
 
   const handleSubmit = async () => {
-    if (!title || !location || !categoryKey) return;
+    const newErrors: Record<string, boolean> = {};
+    if (!title) newErrors.title = true;
+    if (!categoryKey) newErrors.category = true;
+    if (!location) newErrors.location = true;
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+    setErrors({});
     setSaving(true);
     try {
       await fetch("/api/requests", {
@@ -113,6 +118,7 @@ export default function CreateCasePage() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      <LoadingModal show={saving} />
       <div className="mb-6">
         <button onClick={() => router.back()} className="text-sm text-slate-500 hover:text-indigo-600 mb-2 flex items-center gap-1">← {t("createCase.back")}</button>
         <h2 className="text-xl font-bold">{t("createCase.title")}</h2>
@@ -126,9 +132,10 @@ export default function CreateCasePage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-1">{t("createCase.caseTitle")} <span className="text-red-500">*</span></label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} required
+              <input value={title} onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: false })); }} required
                 placeholder={t("createCase.caseTitlePlaceholder")}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500" />
+                className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-indigo-500 ${errors.title ? "border-red-500 bg-red-50" : "border-slate-200"}`} />
+              {errors.title && <p className="text-red-500 text-xs mt-1">⚠️ {t("createCase.caseTitle")} {t("createCase.required")}</p>}
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">{t("createCase.caseDetail")}</label>
@@ -147,15 +154,17 @@ export default function CreateCasePage() {
               <label className="block text-sm font-semibold mb-1">{t("createCase.catLv1")} <span className="text-red-500">*</span></label>
               <div className="grid grid-cols-2 gap-2">
                 {categories.map((cat) => (
-                  <button key={cat.key} onClick={() => setCategoryKey(cat.key)}
-                    className={`flex items-center gap-2 px-3 py-2.5 border rounded-lg text-sm transition ${categoryKey === cat.key ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold" : "border-slate-200 hover:bg-slate-50"}`}>
+                  <button key={cat.key} onClick={() => { setCategoryKey(cat.key); setSubCategory(""); setErrors((p) => ({ ...p, category: false })); }}
+                    className={`flex items-center gap-2 px-3 py-2.5 border rounded-lg text-sm transition ${categoryKey === cat.key ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold" : errors.category ? "border-red-300 bg-red-50" : "border-slate-200 hover:bg-slate-50"}`}>
                     <span className="text-lg">{cat.icon}</span> {cat.name}
                   </button>
                 ))}
               </div>
+              {errors.category && <p className="text-red-500 text-xs mt-1">⚠️ {t("createCase.catLv1")} {t("createCase.required")}</p>}
             </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">{t("createCase.catLv2")}</label>
+            {categoryKey && subCategories.length > 0 && (
+              <div>
+                <label className="block text-sm font-semibold mb-1">{t("createCase.catLv2")}</label>
               {subCategories.length > 0 ? (
                 <div className="space-y-1.5">
                   {subCategories.map((sub) => (
@@ -169,7 +178,8 @@ export default function CreateCasePage() {
               ) : (
                 <p className="text-sm text-slate-400 py-4">{t("createCase.noSubCat")}</p>
               )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -179,9 +189,16 @@ export default function CreateCasePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-1">{t("table.location")} <span className="text-red-500">*</span></label>
-              <input value={location} onChange={(e) => setLocation(e.target.value)} required
-                placeholder={t("modal.locationPlaceholder")}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500" />
+              <select value={location} onChange={(e) => { setLocation(e.target.value); setErrors((p) => ({ ...p, location: false })); }}
+                className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-indigo-500 ${errors.location ? "border-red-500 bg-red-50" : "border-slate-200"}`}>
+                <option value="">{t("search.all")}</option>
+                {locations.map((g) => (
+                  <optgroup key={g.id} label={g.name}>
+                    {g.children.map((c) => <option key={c.id} value={`${g.name} > ${c.name}`}>{c.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              {errors.location && <p className="text-red-500 text-xs mt-1">⚠️ {t("table.location")} {t("createCase.required")}</p>}
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">{t("createCase.priority")}</label>
