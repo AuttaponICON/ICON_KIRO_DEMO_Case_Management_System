@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [router]);
 
   if (!user) {
-    return <div className="flex items-center justify-center min-h-screen"><p className="text-slate-400">กำลังโหลด...</p></div>;
+    return <div className="flex items-center justify-center min-h-screen"><p className="text-slate-400">Loading...</p></div>;
   }
 
   return (

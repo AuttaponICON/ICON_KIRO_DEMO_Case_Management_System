@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import StatCard from "@/components/StatCard";
 import StatusBadge from "@/components/StatusBadge";
+import { useI18n } from "@/lib/i18n";
 
 interface RequestItem {
   id: number; code: string; title: string; location: string;
@@ -10,6 +11,7 @@ interface RequestItem {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const [requests, setRequests] = useState<RequestItem[]>([]);
 
   useEffect(() => {
@@ -18,31 +20,31 @@ export default function DashboardPage() {
 
   const total = requests.length;
   const pending = requests.filter((r) => r.status === "PENDING").length;
-  const inProgress = requests.filter((r) => r.status === "IN_PROGRESS").length;
+  const inProgress = requests.filter((r) => ["ASSIGNED", "IN_PROGRESS"].includes(r.status)).length;
   const completed = requests.filter((r) => r.status === "COMPLETED").length;
   const recent = requests.slice(0, 5);
 
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-xl font-bold">แดชบอร์ด</h2>
-        <p className="text-sm text-slate-500">ภาพรวมการแจ้งซ่อมทั้งหมด</p>
+        <h2 className="text-xl font-bold">{t("dashboard.title")}</h2>
+        <p className="text-sm text-slate-500">{t("dashboard.subtitle")}</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon="📋" value={total} label="แจ้งซ่อมทั้งหมด" />
-        <StatCard icon="⏳" value={pending} label="รอดำเนินการ" />
-        <StatCard icon="🔄" value={inProgress} label="กำลังดำเนินการ" />
-        <StatCard icon="✅" value={completed} label="เสร็จสิ้น" />
+        <StatCard icon="📋" value={total} label={t("dashboard.total")} />
+        <StatCard icon="⏳" value={pending} label={t("dashboard.pending")} />
+        <StatCard icon="🔄" value={inProgress} label={t("dashboard.inProgress")} />
+        <StatCard icon="✅" value={completed} label={t("dashboard.completed")} />
       </div>
       <div className="bg-white rounded-xl shadow-sm p-5">
-        <h3 className="font-semibold mb-4">รายการแจ้งซ่อมล่าสุด</h3>
+        <h3 className="font-semibold mb-4">{t("dashboard.recentTitle")}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-slate-500 uppercase">
-                <th className="pb-3 pr-4">รหัส</th><th className="pb-3 pr-4">รายการ</th>
-                <th className="pb-3 pr-4">สถานที่</th><th className="pb-3 pr-4">สถานะ</th>
-                <th className="pb-3">วันที่</th>
+                <th className="pb-3 pr-4">{t("table.code")}</th><th className="pb-3 pr-4">{t("table.item")}</th>
+                <th className="pb-3 pr-4">{t("table.location")}</th><th className="pb-3 pr-4">{t("table.status")}</th>
+                <th className="pb-3">{t("table.date")}</th>
               </tr>
             </thead>
             <tbody>
@@ -54,9 +56,7 @@ export default function DashboardPage() {
                   <td className="py-3">{new Date(r.createdAt).toLocaleDateString("th-TH")}</td>
                 </tr>
               ))}
-              {recent.length === 0 && (
-                <tr><td colSpan={5} className="py-8 text-center text-slate-400">ไม่มีข้อมูล</td></tr>
-              )}
+              {recent.length === 0 && <tr><td colSpan={5} className="py-8 text-center text-slate-400">{t("dashboard.noData")}</td></tr>}
             </tbody>
           </table>
         </div>
