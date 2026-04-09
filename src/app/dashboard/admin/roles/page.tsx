@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { ALL_PERMISSIONS } from "@/lib/permissions";
 import { useI18n } from "@/lib/i18n";
+import PermissionTree from "@/components/PermissionTree";
 
 interface RoleItem { id: number; name: string; label: string; permissions: string[]; }
 
@@ -16,7 +16,6 @@ export default function RolesPage() {
   const load = useCallback(() => { fetch("/api/roles").then((r) => r.json()).then(setRoles); }, []);
   useEffect(() => { load(); }, [load]);
 
-  const togglePerm = (p: string) => { setForm((f) => ({ ...f, permissions: f.permissions.includes(p) ? f.permissions.filter((x) => x !== p) : [...f.permissions, p] })); };
   const handleSave = async () => {
     if (editing) { await fetch(`/api/roles/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); }
     else { await fetch("/api/roles", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); }
@@ -61,15 +60,7 @@ export default function RolesPage() {
               <div><label className="block text-sm font-semibold mb-1">{t("admin.roleLabel")}</label><input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder={t("admin.roleLabelPlaceholder")} /></div>
               <div>
                 <label className="block text-sm font-semibold mb-2">{t("admin.permissions")}</label>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {ALL_PERMISSIONS.map((p) => (
-                    <label key={p} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <input type="checkbox" checked={form.permissions.includes(p)} onChange={() => togglePerm(p)} className="rounded" />
-                      <span>{t(`permLabel.${p}`)}</span>
-                      <span className="text-xs text-slate-400 font-mono">({p})</span>
-                    </label>
-                  ))}
-                </div>
+                <PermissionTree selected={form.permissions} onChange={(perms) => setForm({ ...form, permissions: perms })} />
               </div>
               <div className="flex gap-2 justify-end pt-2">
                 <button onClick={() => { setModalOpen(false); setEditing(null); }} className="px-4 py-2 border border-slate-200 rounded-lg text-sm">{t("action.close")}</button>

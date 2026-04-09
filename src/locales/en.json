@@ -12,7 +12,8 @@
     "submit": "Sign In",
     "loading": "Signing in...",
     "error": "An error occurred. Please try again.",
-    "demo": "Demo: admin / 1234"
+    "demo": "Demo: admin / 1234",
+    "sessionExpired": "Your session has expired due to inactivity. Please sign in again."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -31,7 +32,9 @@
     "inProgress": "In Progress",
     "completed": "Completed",
     "recentTitle": "Recent Requests",
-    "noData": "No data"
+    "noData": "No data",
+    "statusChart": "Request Status",
+    "categoryChart": "Count by Category"
   },
   "requests": {
     "title": "Requests",
@@ -139,7 +142,12 @@
     "byCategoryTitle": "Summary by Category",
     "count": "Count",
     "done": "Completed",
-    "pendingCount": "Pending"
+    "pendingCount": "Pending",
+    "year": "Year",
+    "month": "Month",
+    "allMonths": "All",
+    "statusChart": "Request Status",
+    "categoryChart": "Count by Category"
   },
   "settings": {
     "title": "Settings",
@@ -182,6 +190,11 @@
     "permissions": "Permissions",
     "deleteConfirmUser": "Delete this user?",
     "deleteConfirmRole": "Delete this role?"
+  },
+  "permTree": {
+    "menu": "Menu Access",
+    "case": "Case Management",
+    "admin": "System Administration"
   },
   "permLabel": {
     "menu:dashboard": "Menu: Dashboard",

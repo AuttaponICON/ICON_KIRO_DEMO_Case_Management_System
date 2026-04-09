@@ -12,7 +12,8 @@
     "submit": "เข้าสู่ระบบ",
     "loading": "กำลังเข้าสู่ระบบ...",
     "error": "เกิดข้อผิดพลาด กรุณาลองใหม่",
-    "demo": "ทดสอบ: admin / 1234"
+    "demo": "ทดสอบ: admin / 1234",
+    "sessionExpired": "เซสชันหมดอายุเนื่องจากไม่มีการใช้งาน กรุณาเข้าสู่ระบบอีกครั้ง"
   },
   "sidebar": {
     "dashboard": "แดชบอร์ด",
@@ -31,7 +32,9 @@
     "inProgress": "กำลังดำเนินการ",
     "completed": "เสร็จสิ้น",
     "recentTitle": "รายการแจ้งซ่อมล่าสุด",
-    "noData": "ไม่มีข้อมูล"
+    "noData": "ไม่มีข้อมูล",
+    "statusChart": "สถานะการแจ้งซ่อม",
+    "categoryChart": "จำนวนตามประเภท"
   },
   "requests": {
     "title": "แจ้งซ่อม",
@@ -139,7 +142,12 @@
     "byCategoryTitle": "สรุปตามประเภท",
     "count": "จำนวน",
     "done": "เสร็จสิ้น",
-    "pendingCount": "รอดำเนินการ"
+    "pendingCount": "รอดำเนินการ",
+    "year": "ปี",
+    "month": "เดือน",
+    "allMonths": "ทั้งหมด",
+    "statusChart": "สถานะการแจ้งซ่อม",
+    "categoryChart": "จำนวนตามประเภท"
   },
   "settings": {
     "title": "ตั้งค่า",
@@ -182,6 +190,11 @@
     "permissions": "Permissions",
     "deleteConfirmUser": "ต้องการลบผู้ใช้นี้?",
     "deleteConfirmRole": "ต้องการลบ Role นี้?"
+  },
+  "permTree": {
+    "menu": "การเข้าถึงเมนู",
+    "case": "การจัดการ Case",
+    "admin": "การจัดการระบบ"
   },
   "permLabel": {
     "menu:dashboard": "เมนู: แดชบอร์ด",

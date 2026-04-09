@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n, SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const expired = searchParams.get("expired") === "1";
   const { t, lang, setLang } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +49,11 @@ export default function LoginPage() {
         <div className="text-center text-4xl mb-3">🔧</div>
         <h1 className="text-xl font-bold text-center">{t("app.name")}</h1>
         <p className="text-center text-slate-500 text-sm mb-6">{t("app.subtitle")}</p>
+        {expired && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
+            <p className="text-amber-700 text-xs">{t("login.sessionExpired")}</p>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold mb-1">{t("login.username")}</label>
@@ -69,5 +76,13 @@ export default function LoginPage() {
         <p className="text-center text-xs text-slate-400 mt-5">{t("login.demo")}</p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

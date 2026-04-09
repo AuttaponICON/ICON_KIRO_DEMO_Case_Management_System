@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import { useIdleTimeout } from "@/lib/useIdleTimeout";
 
 interface UserData {
   name: string;
@@ -10,9 +11,18 @@ interface UserData {
   permissions: string[];
 }
 
+const IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
+
+  const handleIdle = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/?expired=1");
+  }, [router]);
+
+  useIdleTimeout(handleIdle, IDLE_TIMEOUT_MS);
 
   useEffect(() => {
     fetch("/api/auth/me")
