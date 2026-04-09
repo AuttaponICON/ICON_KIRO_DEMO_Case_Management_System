@@ -22,7 +22,11 @@
     "settings": "ตั้งค่า",
     "users": "จัดการผู้ใช้",
     "roles": "จัดการ Role",
-    "logout": "ออกจากระบบ"
+    "categories": "ประเภท Case",
+    "logout": "ออกจากระบบ",
+    "groupMain": "หลัก",
+    "groupAdmin": "จัดการระบบ",
+    "groupSettings": "ตั้งค่า"
   },
   "dashboard": {
     "title": "แดชบอร์ด",
@@ -222,6 +226,23 @@
     "loading": "กำลังโหลด...",
     "by": "โดย",
     "system": "ระบบ"
+  },
+  "user": {
+    "email": "อีเมล",
+    "phone": "เบอร์โทร",
+    "department": "แผนก",
+    "position": "ตำแหน่ง"
+  },
+  "catConfig": {
+    "title": "ตั้งค่าประเภท Case",
+    "subtitle": "จัดการประเภทและประเภทย่อย พร้อมกำหนด SLA",
+    "allCategories": "ประเภททั้งหมด",
+    "addCategory": "+ เพิ่มประเภท",
+    "editCategory": "แก้ไขประเภท",
+    "addSub": "เพิ่มประเภทย่อย",
+    "editSub": "แก้ไขประเภทย่อย",
+    "subItems": "รายการย่อย",
+    "subName": "ชื่อประเภทย่อย"
   },
   "search": {
     "placeholder": "ค้นหา รหัส, รายการ, สถานที่...",

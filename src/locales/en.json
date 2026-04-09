@@ -22,7 +22,11 @@
     "settings": "Settings",
     "users": "User Management",
     "roles": "Role Management",
-    "logout": "Sign Out"
+    "categories": "Case Categories",
+    "logout": "Sign Out",
+    "groupMain": "Main",
+    "groupAdmin": "Administration",
+    "groupSettings": "Settings"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -222,6 +226,23 @@
     "loading": "Loading...",
     "by": "by",
     "system": "System"
+  },
+  "user": {
+    "email": "Email",
+    "phone": "Phone",
+    "department": "Department",
+    "position": "Position"
+  },
+  "catConfig": {
+    "title": "Case Category Settings",
+    "subtitle": "Manage categories, sub-categories and SLA",
+    "allCategories": "All Categories",
+    "addCategory": "+ Add Category",
+    "editCategory": "Edit Category",
+    "addSub": "Add Sub-Category",
+    "editSub": "Edit Sub-Category",
+    "subItems": "sub-items",
+    "subName": "Sub-Category Name"
   },
   "search": {
     "placeholder": "Search code, item, location...",

@@ -10,7 +10,7 @@ export async function GET() {
 
   const users = demoUsers.map((u) => {
     const role = demoRoles.find((r) => r.id === u.roleId);
-    return { id: u.id, username: u.username, name: u.name, roleId: u.roleId, roleName: role?.label || "", active: u.active };
+    return { id: u.id, username: u.username, name: u.name, email: u.email, phone: u.phone, department: u.department, position: u.position, roleId: u.roleId, roleName: role?.label || "", active: u.active };
   });
   return NextResponse.json(users);
 }
@@ -23,13 +23,11 @@ export async function POST(req: Request) {
   if (!perms.includes("user:manage")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
-  if (demoUsers.find((u) => u.username === body.username)) {
-    return NextResponse.json({ error: "Username already exists" }, { status: 400 });
-  }
+  if (demoUsers.find((u) => u.username === body.username)) return NextResponse.json({ error: "Username already exists" }, { status: 400 });
 
-  const newUser = { id: getNextUserId(), username: body.username, password: body.password || "1234", name: body.name, roleId: body.roleId, active: true };
+  const newUser = { id: getNextUserId(), username: body.username, password: body.password || "1234", name: body.name, email: body.email || "", phone: body.phone || "", department: body.department || "", position: body.position || "", roleId: body.roleId, active: true };
   demoUsers.push(newUser);
 
   const role = demoRoles.find((r) => r.id === newUser.roleId);
-  return NextResponse.json({ id: newUser.id, username: newUser.username, name: newUser.name, roleId: newUser.roleId, roleName: role?.label || "", active: true }, { status: 201 });
+  return NextResponse.json({ ...newUser, password: undefined, roleName: role?.label || "" }, { status: 201 });
 }
