@@ -34,7 +34,14 @@
     "recentTitle": "Recent Requests",
     "noData": "No data",
     "statusChart": "Request Status",
-    "categoryChart": "Count by Category"
+    "categoryChart": "Count by Category",
+    "workloadChart": "Workload per Person",
+    "activeCases": "Active Cases",
+    "clickToView": "Click chart bar to view details",
+    "overdue": "SLA Overdue",
+    "overdueTitle": "SLA Overdue Items",
+    "overdueDays": "Overdue by",
+    "days": "days"
   },
   "requests": {
     "title": "Requests",
@@ -215,5 +222,15 @@
     "loading": "Loading...",
     "by": "by",
     "system": "System"
+  },
+  "search": {
+    "placeholder": "Search code, item, location...",
+    "advanced": "Advanced Search",
+    "all": "All",
+    "dateFrom": "From Date",
+    "dateTo": "To Date",
+    "slaOverdueOnly": "SLA Overdue Only",
+    "clear": "Clear Filters",
+    "results": "Results"
   }
 }

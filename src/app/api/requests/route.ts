@@ -33,10 +33,14 @@ export async function POST(req: Request) {
   const now = new Date().toISOString();
   const user = demoUsers.find((u) => u.id === session.userId);
 
+  const slaDate = new Date();
+  slaDate.setDate(slaDate.getDate() + 3);
+
   const newReq = {
     id: getNextRequestId(), code, title: body.title, location: body.location,
     category: body.category, detail: body.detail || null, status: "PENDING",
     rootCause: null, resolution: null, cancelReason: null, rejectReason: null,
+    slaDeadline: slaDate.toISOString(),
     createdAt: now, updatedAt: now, creatorId: session.userId, assigneeId: null,
     creator: { name: user?.name || "Unknown" }, assignee: null,
   };

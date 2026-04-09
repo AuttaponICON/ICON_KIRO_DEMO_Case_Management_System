@@ -63,6 +63,7 @@ export interface DemoRequest {
   resolution: string | null;
   cancelReason: string | null;
   rejectReason: string | null;
+  slaDeadline: string;
   createdAt: string;
   updatedAt: string;
   creatorId: number;
@@ -72,11 +73,13 @@ export interface DemoRequest {
 }
 
 export const demoRequests: DemoRequest[] = [
-  { id: 1, code: "REQ-001", title: "แอร์ไม่เย็น", location: "ห้อง 301", category: "AC", detail: "แอร์เปิดแล้วไม่เย็น มีเสียงดัง", status: "PENDING", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, createdAt: "2026-04-07T00:00:00.000Z", updatedAt: "2026-04-07T00:00:00.000Z", creatorId: 3, assigneeId: null, creator: { name: "สมชาย ใจดี" } },
-  { id: 2, code: "REQ-002", title: "ไฟห้องน้ำไม่ติด", location: "ชั้น 2 ห้องน้ำชาย", category: "ELECTRICAL", detail: "หลอดไฟขาด", status: "ASSIGNED", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, createdAt: "2026-04-08T00:00:00.000Z", updatedAt: "2026-04-08T00:00:00.000Z", creatorId: 5, assigneeId: 3, creator: { name: "คุณวิชัย VIP" }, assignee: { name: "สมชาย ใจดี" } },
-  { id: 3, code: "REQ-003", title: "ก๊อกน้ำรั่ว", location: "ห้องครัว ชั้น 1", category: "PLUMBING", detail: "น้ำหยดตลอดเวลา", status: "COMPLETED", rootCause: "ซีลยางเสื่อม", resolution: "เปลี่ยนซีลยางใหม่", cancelReason: null, rejectReason: null, createdAt: "2026-04-06T00:00:00.000Z", updatedAt: "2026-04-06T00:00:00.000Z", creatorId: 3, assigneeId: 4, creator: { name: "สมชาย ใจดี" }, assignee: { name: "สมหญิง รักงาน" } },
-  { id: 4, code: "REQ-004", title: "ประตูปิดไม่สนิท", location: "ห้องประชุม A", category: "BUILDING", detail: "บานพับหลวม", status: "RESOLVED", rootCause: "บานพับสึกหรอ", resolution: "เปลี่ยนบานพับใหม่", cancelReason: null, rejectReason: null, createdAt: "2026-04-09T00:00:00.000Z", updatedAt: "2026-04-09T00:00:00.000Z", creatorId: 4, assigneeId: 3, creator: { name: "สมหญิง รักงาน" }, assignee: { name: "สมชาย ใจดี" } },
-  { id: 5, code: "REQ-005", title: "ปลั๊กไฟชำรุด", location: "ห้อง 205", category: "ELECTRICAL", detail: "ปลั๊กหลวม มีประกายไฟ", status: "CANCELLED", rootCause: null, resolution: null, cancelReason: "ซ้ำกับ REQ-002", rejectReason: null, createdAt: "2026-04-05T00:00:00.000Z", updatedAt: "2026-04-05T00:00:00.000Z", creatorId: 3, assigneeId: null, creator: { name: "สมชาย ใจดี" } },
+  { id: 1, code: "REQ-001", title: "แอร์ไม่เย็น", location: "ห้อง 301", category: "AC", detail: "แอร์เปิดแล้วไม่เย็น มีเสียงดัง", status: "PENDING", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, slaDeadline: "2026-04-08T00:00:00.000Z", createdAt: "2026-04-07T00:00:00.000Z", updatedAt: "2026-04-07T00:00:00.000Z", creatorId: 3, assigneeId: null, creator: { name: "สมชาย ใจดี" } },
+  { id: 2, code: "REQ-002", title: "ไฟห้องน้ำไม่ติด", location: "ชั้น 2 ห้องน้ำชาย", category: "ELECTRICAL", detail: "หลอดไฟขาด", status: "ASSIGNED", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, slaDeadline: "2026-04-10T00:00:00.000Z", createdAt: "2026-04-08T00:00:00.000Z", updatedAt: "2026-04-08T00:00:00.000Z", creatorId: 5, assigneeId: 3, creator: { name: "คุณวิชัย VIP" }, assignee: { name: "สมชาย ใจดี" } },
+  { id: 3, code: "REQ-003", title: "ก๊อกน้ำรั่ว", location: "ห้องครัว ชั้น 1", category: "PLUMBING", detail: "น้ำหยดตลอดเวลา", status: "COMPLETED", rootCause: "ซีลยางเสื่อม", resolution: "เปลี่ยนซีลยางใหม่", cancelReason: null, rejectReason: null, slaDeadline: "2026-04-08T00:00:00.000Z", createdAt: "2026-04-06T00:00:00.000Z", updatedAt: "2026-04-06T00:00:00.000Z", creatorId: 3, assigneeId: 4, creator: { name: "สมชาย ใจดี" }, assignee: { name: "สมหญิง รักงาน" } },
+  { id: 4, code: "REQ-004", title: "ประตูปิดไม่สนิท", location: "ห้องประชุม A", category: "BUILDING", detail: "บานพับหลวม", status: "RESOLVED", rootCause: "บานพับสึกหรอ", resolution: "เปลี่ยนบานพับใหม่", cancelReason: null, rejectReason: null, slaDeadline: "2026-04-11T00:00:00.000Z", createdAt: "2026-04-09T00:00:00.000Z", updatedAt: "2026-04-09T00:00:00.000Z", creatorId: 4, assigneeId: 3, creator: { name: "สมหญิง รักงาน" }, assignee: { name: "สมชาย ใจดี" } },
+  { id: 5, code: "REQ-005", title: "ปลั๊กไฟชำรุด", location: "ห้อง 205", category: "ELECTRICAL", detail: "ปลั๊กหลวม มีประกายไฟ", status: "CANCELLED", rootCause: null, resolution: null, cancelReason: "ซ้ำกับ REQ-002", rejectReason: null, slaDeadline: "2026-04-07T00:00:00.000Z", createdAt: "2026-04-05T00:00:00.000Z", updatedAt: "2026-04-05T00:00:00.000Z", creatorId: 3, assigneeId: null, creator: { name: "สมชาย ใจดี" } },
+  { id: 6, code: "REQ-006", title: "หลังคารั่ว", location: "อาคาร B ชั้น 3", category: "BUILDING", detail: "น้ำรั่วเวลาฝนตก", status: "ASSIGNED", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, slaDeadline: "2026-04-03T00:00:00.000Z", createdAt: "2026-04-01T00:00:00.000Z", updatedAt: "2026-04-01T00:00:00.000Z", creatorId: 5, assigneeId: 4, creator: { name: "คุณวิชัย VIP" }, assignee: { name: "สมหญิง รักงาน" } },
+  { id: 7, code: "REQ-007", title: "แอร์มีเสียงดัง", location: "ห้อง 102", category: "AC", detail: "เสียงดังผิดปกติ", status: "PENDING", rootCause: null, resolution: null, cancelReason: null, rejectReason: null, slaDeadline: "2026-04-06T00:00:00.000Z", createdAt: "2026-04-04T00:00:00.000Z", updatedAt: "2026-04-04T00:00:00.000Z", creatorId: 4, assigneeId: null, creator: { name: "สมหญิง รักงาน" } },
 ];
 
 // ===== Case History =====
@@ -101,7 +104,7 @@ export const demoCaseHistory: DemoCaseHistory[] = [
 ];
 
 // ===== ID Generators =====
-let nextRequestId = 6;
+let nextRequestId = 8;
 let nextUserId = 6;
 let nextRoleId = 5;
 let nextHistoryId = 8;

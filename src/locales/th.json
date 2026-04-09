@@ -34,7 +34,14 @@
     "recentTitle": "รายการแจ้งซ่อมล่าสุด",
     "noData": "ไม่มีข้อมูล",
     "statusChart": "สถานะการแจ้งซ่อม",
-    "categoryChart": "จำนวนตามประเภท"
+    "categoryChart": "จำนวนตามประเภท",
+    "workloadChart": "ภาระงานต่อคน",
+    "activeCases": "งานที่ดำเนินการอยู่",
+    "clickToView": "คลิกที่กราฟเพื่อดูรายละเอียด",
+    "overdue": "เกิน SLA",
+    "overdueTitle": "รายการเกิน SLA",
+    "overdueDays": "เกินมาแล้ว",
+    "days": "วัน"
   },
   "requests": {
     "title": "แจ้งซ่อม",
@@ -215,5 +222,15 @@
     "loading": "กำลังโหลด...",
     "by": "โดย",
     "system": "ระบบ"
+  },
+  "search": {
+    "placeholder": "ค้นหา รหัส, รายการ, สถานที่...",
+    "advanced": "ค้นหาขั้นสูง",
+    "all": "ทั้งหมด",
+    "dateFrom": "ตั้งแต่วันที่",
+    "dateTo": "ถึงวันที่",
+    "slaOverdueOnly": "เฉพาะเกิน SLA",
+    "clear": "ล้างตัวกรอง",
+    "results": "ผลลัพธ์"
   }
 }
