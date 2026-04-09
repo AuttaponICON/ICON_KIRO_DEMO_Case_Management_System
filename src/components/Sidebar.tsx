@@ -3,15 +3,22 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Permission, hasPermission } from "@/lib/permissions";
 
-const navItems = [
-  { href: "/dashboard", label: "แดชบอร์ด", icon: "📊" },
-  { href: "/dashboard/requests", label: "แจ้งซ่อม", icon: "📝" },
-  { href: "/dashboard/reports", label: "รายงาน", icon: "📈" },
-  { href: "/dashboard/settings", label: "ตั้งค่า", icon: "⚙️" },
+const navItems: { href: string; label: string; icon: string; permission: Permission }[] = [
+  { href: "/dashboard", label: "แดชบอร์ด", icon: "📊", permission: "menu:dashboard" },
+  { href: "/dashboard/requests", label: "แจ้งซ่อม", icon: "📝", permission: "menu:requests" },
+  { href: "/dashboard/reports", label: "รายงาน", icon: "📈", permission: "menu:reports" },
+  { href: "/dashboard/settings", label: "ตั้งค่า", icon: "⚙️", permission: "menu:settings" },
+  { href: "/dashboard/admin/users", label: "จัดการผู้ใช้", icon: "👥", permission: "menu:admin" },
+  { href: "/dashboard/admin/roles", label: "จัดการ Role", icon: "🔑", permission: "menu:admin" },
 ];
 
-export default function Sidebar({ user }: { user: { name: string; role: string } }) {
+interface Props {
+  user: { name: string; role: string; permissions: string[] };
+}
+
+export default function Sidebar({ user }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -21,48 +28,31 @@ export default function Sidebar({ user }: { user: { name: string; role: string }
     router.push("/");
   };
 
+  const visibleItems = navItems.filter((item) => hasPermission(user.permissions, item.permission));
+
   return (
     <>
-      <button
-        onClick={() => setOpen(!open)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-slate-800 text-white p-2 rounded-lg text-lg"
-      >
-        ☰
-      </button>
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 bg-slate-800 text-white flex flex-col transition-transform md:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="px-5 py-5 text-lg font-bold border-b border-white/10 flex items-center gap-2">
-          🔧 ระบบแจ้งซ่อม
-        </div>
+      <button onClick={() => setOpen(!open)} className="md:hidden fixed top-4 left-4 z-50 bg-slate-800 text-white p-2 rounded-lg text-lg">☰</button>
+      <aside className={`fixed inset-y-0 left-0 z-40 w-60 bg-slate-800 text-white flex flex-col transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="px-5 py-5 text-lg font-bold border-b border-white/10 flex items-center gap-2">🔧 ระบบแจ้งซ่อม</div>
         <nav className="flex-1 py-4">
-          {navItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link
-                key={item.href} href={item.href} onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-5 py-2.5 text-sm transition ${
-                  isActive ? "text-white bg-white/10" : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-              >
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 px-5 py-2.5 text-sm transition ${isActive ? "text-white bg-white/10" : "text-white/60 hover:text-white hover:bg-white/5"}`}>
                 <span>{item.icon}</span> {item.label}
               </Link>
             );
           })}
         </nav>
         <div className="px-5 py-4 border-t border-white/10 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm">
-            {user.name.charAt(0)}
-          </div>
+          <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm">{user.name.charAt(0)}</div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold truncate">{user.name}</div>
             <div className="text-xs text-white/50">{user.role}</div>
           </div>
-          <button onClick={handleLogout} className="text-white/50 hover:text-white text-lg" title="ออกจากระบบ">
-            🚪
-          </button>
+          <button onClick={handleLogout} className="text-white/50 hover:text-white text-lg" title="ออกจากระบบ">🚪</button>
         </div>
       </aside>
     </>

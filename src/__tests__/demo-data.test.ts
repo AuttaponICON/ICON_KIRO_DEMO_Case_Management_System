@@ -1,66 +1,93 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { demoUsers, demoRequests, getNextId } from "@/lib/demo-data";
+import { describe, it, expect } from "vitest";
+import { demoUsers, demoRequests, demoRoles, demoCaseHistory, getUserPermissions, getUserRole } from "@/lib/demo-data";
 
-describe("Demo Data", () => {
-  describe("demoUsers", () => {
-    it("should have at least 2 users", () => {
-      expect(demoUsers.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it("should have admin user with correct credentials", () => {
-      const admin = demoUsers.find((u) => u.username === "admin");
-      expect(admin).toBeDefined();
-      expect(admin!.password).toBe("1234");
-      expect(admin!.role).toBe("admin");
-    });
-
-    it("each user should have required fields", () => {
-      demoUsers.forEach((u) => {
-        expect(u.id).toBeTypeOf("number");
-        expect(u.username).toBeTypeOf("string");
-        expect(u.name).toBeTypeOf("string");
-        expect(u.role).toBeTypeOf("string");
-      });
-    });
+describe("Demo Roles", () => {
+  it("should have 4 default roles", () => {
+    expect(demoRoles.length).toBe(4);
   });
 
-  describe("demoRequests", () => {
-    it("should have 5 seed requests", () => {
-      expect(demoRequests.length).toBeGreaterThanOrEqual(5);
-    });
-
-    it("each request should have required fields", () => {
-      demoRequests.forEach((r) => {
-        expect(r.id).toBeTypeOf("number");
-        expect(r.code).toMatch(/^REQ-\d{3}$/);
-        expect(r.title).toBeTypeOf("string");
-        expect(r.location).toBeTypeOf("string");
-        expect(["ELECTRICAL", "PLUMBING", "AC", "BUILDING", "OTHER"]).toContain(r.category);
-        expect(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"]).toContain(r.status);
-      });
-    });
-
-    it("should have unique codes", () => {
-      const codes = demoRequests.map((r) => r.code);
-      expect(new Set(codes).size).toBe(codes.length);
-    });
-
-    it("should cover multiple statuses", () => {
-      const statuses = new Set(demoRequests.map((r) => r.status));
-      expect(statuses.size).toBeGreaterThanOrEqual(3);
-    });
-
-    it("should cover multiple categories", () => {
-      const categories = new Set(demoRequests.map((r) => r.category));
-      expect(categories.size).toBeGreaterThanOrEqual(3);
-    });
+  it("admin role should have all permissions", () => {
+    const admin = demoRoles.find((r) => r.name === "admin");
+    expect(admin).toBeDefined();
+    expect(admin!.permissions).toContain("user:manage");
+    expect(admin!.permissions).toContain("role:manage");
+    expect(admin!.permissions).toContain("menu:admin");
   });
 
-  describe("getNextId", () => {
-    it("should return incrementing ids", () => {
-      const id1 = getNextId();
-      const id2 = getNextId();
-      expect(id2).toBe(id1 + 1);
+  it("member role should not have admin permissions", () => {
+    const member = demoRoles.find((r) => r.name === "member");
+    expect(member).toBeDefined();
+    expect(member!.permissions).not.toContain("menu:admin");
+    expect(member!.permissions).not.toContain("case:assign");
+    expect(member!.permissions).not.toContain("case:approve");
+  });
+
+  it("manager role should have workflow permissions", () => {
+    const mgr = demoRoles.find((r) => r.name === "manager");
+    expect(mgr!.permissions).toContain("case:assign");
+    expect(mgr!.permissions).toContain("case:approve");
+    expect(mgr!.permissions).toContain("case:complete");
+    expect(mgr!.permissions).toContain("case:cancel");
+  });
+});
+
+describe("Demo Users", () => {
+  it("should have at least 5 users", () => {
+    expect(demoUsers.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("each user should have a valid roleId", () => {
+    const roleIds = demoRoles.map((r) => r.id);
+    demoUsers.forEach((u) => expect(roleIds).toContain(u.roleId));
+  });
+});
+
+describe("getUserPermissions", () => {
+  it("should return admin permissions for admin user", () => {
+    const perms = getUserPermissions(1);
+    expect(perms).toContain("user:manage");
+    expect(perms).toContain("role:manage");
+  });
+
+  it("should return member permissions for member user", () => {
+    const perms = getUserPermissions(3); // member1
+    expect(perms).toContain("case:create");
+    expect(perms).toContain("case:resolve");
+    expect(perms).not.toContain("case:assign");
+  });
+
+  it("should return empty for non-existent user", () => {
+    expect(getUserPermissions(999)).toEqual([]);
+  });
+});
+
+describe("getUserRole", () => {
+  it("should return correct role", () => {
+    const role = getUserRole(2); // manager1
+    expect(role?.name).toBe("manager");
+  });
+});
+
+describe("Demo Requests", () => {
+  it("should have multiple statuses", () => {
+    const statuses = new Set(demoRequests.map((r) => r.status));
+    expect(statuses.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("each request should have creatorId", () => {
+    demoRequests.forEach((r) => expect(r.creatorId).toBeTypeOf("number"));
+  });
+});
+
+describe("Demo Case History", () => {
+  it("should have history entries", () => {
+    expect(demoCaseHistory.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("each entry should have action and requestId", () => {
+    demoCaseHistory.forEach((h) => {
+      expect(h.action).toBeTypeOf("string");
+      expect(h.requestId).toBeTypeOf("number");
     });
   });
 });

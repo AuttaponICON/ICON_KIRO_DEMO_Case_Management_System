@@ -1,86 +1,62 @@
-# Tasks: ระบบแจ้งซ่อม (Maintenance Request System)
+# Tasks: ระบบแจ้งซ่อม v2
 
-## Task 1: Project Setup
-- [x] สร้าง Next.js project พร้อม TypeScript + Tailwind CSS
-- [x] ติดตั้ง dependencies (prisma, @prisma/client, iron-session, bcryptjs)
-- [x] สร้าง `.env` สำหรับ DATABASE_URL และ SESSION_SECRET
-- [x] สร้าง `next.config.ts`
+## Task 1–14: (Completed — ดู git history)
+- [x] Project setup, Prisma, Auth, CRUD, Pages, Docker, Git, OpenAPI, Tests
 
-## Task 2: Prisma Schema & Database
-- [x] สร้าง `prisma/schema.prisma` (User, Request models, enums)
-- [x] สร้าง `src/lib/prisma.ts` (Prisma client singleton)
-- [x] สร้าง `prisma/seed.ts` (seed users + sample requests)
-- [x] เพิ่ม prisma seed script ใน package.json
+## Task 15: Permission System
+- [ ] สร้าง `src/lib/permissions.ts` (permission constants + hasPermission helper)
+- [ ] สร้าง `src/components/PermissionGate.tsx` (conditional render)
 
-#[[file:prisma/schema.prisma]]
+#[[file:src/lib/permissions.ts]]
+#[[file:src/components/PermissionGate.tsx]]
 
-## Task 3: Session & Auth Utilities
-- [x] สร้าง `src/lib/session.ts` (iron-session config)
-- [x] สร้าง API route `POST /api/auth/login`
-- [x] สร้าง API route `POST /api/auth/logout`
-- [x] สร้าง API route `GET /api/auth/me`
+## Task 16: Update Demo Data (Roles, Users, Cases)
+- [ ] อัปเดต `src/lib/demo-data.ts` เพิ่ม roles, permissions, case fields, history
 
-#[[file:src/lib/session.ts]]
-#[[file:src/app/api/auth/login/route.ts]]
-#[[file:src/app/api/auth/logout/route.ts]]
-#[[file:src/app/api/auth/me/route.ts]]
+#[[file:src/lib/demo-data.ts]]
 
-## Task 4: Request API Routes
-- [x] สร้าง `GET /api/requests` (list all, รองรับ query params)
-- [x] สร้าง `POST /api/requests` (create new request)
-- [x] สร้าง `GET /api/requests/[id]` (get single)
-- [x] สร้าง `PUT /api/requests/[id]` (update)
-- [x] สร้าง `DELETE /api/requests/[id]` (delete)
+## Task 17: Role & User API Routes
+- [ ] สร้าง `GET/POST /api/roles`
+- [ ] สร้าง `GET/PUT/DELETE /api/roles/[id]`
+- [ ] สร้าง `GET/POST /api/users`
+- [ ] สร้าง `GET/PUT/DELETE /api/users/[id]`
 
-#[[file:src/app/api/requests/route.ts]]
-#[[file:src/app/api/requests/[id]/route.ts]]
+## Task 18: Case Workflow API Routes
+- [ ] สร้าง `POST /api/requests/[id]/assign`
+- [ ] สร้าง `POST /api/requests/[id]/cancel`
+- [ ] สร้าง `POST /api/requests/[id]/resolve`
+- [ ] สร้าง `POST /api/requests/[id]/approve`
+- [ ] สร้าง `POST /api/requests/[id]/reject`
+- [ ] สร้าง `POST /api/requests/[id]/complete`
 
-## Task 5: Login Page (Frontend)
-- [x] สร้าง `src/app/layout.tsx` (root layout + Tailwind)
-- [x] สร้าง `src/app/page.tsx` (Login form)
-- [x] เรียก API login, redirect ไป /dashboard เมื่อสำเร็จ
+## Task 19: Update Auth API (return permissions)
+- [ ] อัปเดต `/api/auth/login` และ `/api/auth/me` ให้ return permissions
 
-#[[file:src/app/page.tsx]]
-#[[file:src/app/layout.tsx]]
-
-## Task 6: Dashboard Layout & Components
-- [x] สร้าง `src/components/Sidebar.tsx`
-- [x] สร้าง `src/components/StatCard.tsx`
-- [x] สร้าง `src/components/StatusBadge.tsx`
-- [x] สร้าง `src/app/dashboard/layout.tsx` (sidebar + auth check)
+## Task 20: Update Sidebar (RBAC-aware)
+- [ ] อัปเดต Sidebar ให้แสดงเมนูตาม permissions
 
 #[[file:src/components/Sidebar.tsx]]
-#[[file:src/components/StatCard.tsx]]
-#[[file:src/components/StatusBadge.tsx]]
-#[[file:src/app/dashboard/layout.tsx]]
 
-## Task 7: Dashboard Page
-- [x] สร้าง `src/app/dashboard/page.tsx`
-- [x] แสดง Stat Cards (ทั้งหมด, รอ, กำลังดำเนินการ, เสร็จ)
-- [x] แสดงตารางรายการล่าสุด 5 รายการ
+## Task 21: Workflow Action Components
+- [ ] สร้าง `WorkflowActions.tsx` (ปุ่ม action ตาม status + permission)
+- [ ] สร้าง `AssignModal.tsx`
+- [ ] สร้าง `ResolveModal.tsx`
+- [ ] สร้าง `RejectModal.tsx`
+- [ ] สร้าง `CancelModal.tsx`
 
-#[[file:src/app/dashboard/page.tsx]]
+## Task 22: Update Requests Page (Workflow UI)
+- [ ] อัปเดตหน้า requests ให้แสดง workflow actions
+- [ ] แสดง case history
 
-## Task 8: Requests Page (แจ้งซ่อม)
-- [x] สร้าง `src/components/RequestModal.tsx`
-- [x] สร้าง `src/app/dashboard/requests/page.tsx`
-- [x] ตารางรายการทั้งหมด + ปุ่มแก้ไข/ลบ
-- [x] Modal สำหรับเพิ่ม/แก้ไข
-- [x] เรียก API CRUD
+## Task 23: Admin Pages
+- [ ] สร้าง `src/app/dashboard/admin/users/page.tsx`
+- [ ] สร้าง `src/app/dashboard/admin/roles/page.tsx`
 
-#[[file:src/components/RequestModal.tsx]]
-#[[file:src/app/dashboard/requests/page.tsx]]
+## Task 24: Update Tests
+- [ ] เพิ่ม tests สำหรับ permissions, workflow, roles
 
-## Task 9: Reports Page (รายงาน)
-- [x] สร้าง `src/app/dashboard/reports/page.tsx`
-- [x] Stat Cards (จำนวนทั้งหมด, อัตราเสร็จสิ้น, ประเภทที่แจ้งมากสุด)
-- [x] ตารางสรุปตามประเภท
+## Task 25: Update OpenAPI Spec
+- [ ] เพิ่ม workflow endpoints, role/user endpoints
 
-#[[file:src/app/dashboard/reports/page.tsx]]
-
-## Task 10: Settings Page (ตั้งค่า)
-- [x] สร้าง `src/app/dashboard/settings/page.tsx`
-- [x] หมวดการแจ้งเตือน (toggles)
-- [x] หมวดทั่วไป (ภาษา, จำนวนรายการ)
-
-#[[file:src/app/dashboard/settings/page.tsx]]
+## Task 26: Git Commit
+- [ ] Commit ทั้งหมด
