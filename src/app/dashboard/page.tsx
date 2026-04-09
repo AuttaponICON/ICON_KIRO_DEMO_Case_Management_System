@@ -243,7 +243,7 @@ export default function DashboardPage() {
                   const days = Math.ceil((now.getTime() - new Date(r.slaDeadline!).getTime()) / (1000 * 60 * 60 * 24));
                   return (
                     <tr key={r.id} className="border-t border-slate-100 cursor-pointer hover:bg-red-50"
-                      onClick={() => router.push(`/dashboard/requests?search=${r.code}`)}>
+                      onClick={() => window.open(`/dashboard/requests/${r.id}`, "_blank")}>
                       <td className="py-2 pr-3">{r.code}</td>
                       <td className="py-2 pr-3 text-indigo-600">{r.title}</td>
                       <td className="py-2 pr-3">{r.assignee?.name || "-"}</td>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
                       const overdueDays = isOverdue ? Math.ceil((now.getTime() - new Date(r.slaDeadline!).getTime()) / (1000 * 60 * 60 * 24)) : 0;
                       return (
                         <tr key={r.id} className={`border-t border-slate-100 cursor-pointer hover:bg-slate-50 ${isOverdue ? "bg-red-50" : ""}`}
-                          onClick={() => { setDrillDown(null); router.push(`/dashboard/requests?search=${r.code}`); }}>
+                          onClick={() => { window.open(`/dashboard/requests/${r.id}`, "_blank"); }}>
                           <td className="py-2 pr-3 font-mono text-xs">{r.code}</td>
                           <td className="py-2 pr-3 text-indigo-600">{r.title}</td>
                           <td className="py-2 pr-3">{r.location}</td>
