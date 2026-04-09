@@ -21,10 +21,16 @@ interface RequestItem {
   assigneeId?: number | null;
 }
 
+interface DrillDown {
+  title: string;
+  items: RequestItem[];
+}
+
 export default function DashboardPage() {
   const { t } = useI18n();
   const router = useRouter();
   const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [drillDown, setDrillDown] = useState<DrillDown | null>(null);
 
   useEffect(() => {
     fetch("/api/requests").then((r) => r.json()).then(setRequests);
@@ -39,41 +45,67 @@ export default function DashboardPage() {
   const resolved = requests.filter((r) => r.status === "RESOLVED").length;
   const recent = requests.slice(0, 5);
 
-  // SLA Overdue: not completed/cancelled and past deadline
   const now = new Date();
   const activeStatuses = ["PENDING", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"];
   const overdueItems = requests.filter((r) =>
     activeStatuses.includes(r.status) && r.slaDeadline && new Date(r.slaDeadline) < now
   );
 
-  // Workload: group by assignee
-  const workload: Record<string, { name: string; count: number; ids: number[] }> = {};
+  // Workload
+  const workload: Record<string, { name: string; count: number }> = {};
   requests.filter((r) => activeStatuses.includes(r.status) && r.assignee?.name).forEach((r) => {
     const name = r.assignee!.name;
-    if (!workload[name]) workload[name] = { name, count: 0, ids: [] };
+    if (!workload[name]) workload[name] = { name, count: 0 };
     workload[name].count++;
-    workload[name].ids.push(r.id);
   });
   const workloadSorted = Object.values(workload).sort((a, b) => b.count - a.count);
 
-  // Status chart
+  // Status chart data + click
+  const statusKeys = ["PENDING", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "COMPLETED", "CANCELLED"];
+  const statusCounts = [pending, assigned, inProgress, resolved, completed, cancelled];
   const statusData = {
-    labels: [t("status.PENDING"), t("status.ASSIGNED"), t("status.IN_PROGRESS"), t("status.RESOLVED"), t("status.COMPLETED"), t("status.CANCELLED")],
-    datasets: [{ data: [pending, assigned, inProgress, resolved, completed, cancelled], backgroundColor: ["#f59e0b", "#3b82f6", "#0ea5e9", "#8b5cf6", "#22c55e", "#94a3b8"] }],
+    labels: statusKeys.map((s) => t(`status.${s}`)),
+    datasets: [{ data: statusCounts, backgroundColor: ["#f59e0b", "#3b82f6", "#0ea5e9", "#8b5cf6", "#22c55e", "#94a3b8"] }],
+  };
+  const onStatusClick = (_e: unknown, elements: { index: number }[]) => {
+    if (elements.length > 0) {
+      const idx = elements[0].index;
+      const key = statusKeys[idx];
+      setDrillDown({ title: t(`status.${key}`), items: requests.filter((r) => r.status === key) });
+    }
   };
 
-  // Category chart
-  const catCount: Record<string, number> = {};
-  requests.forEach((r) => { catCount[r.category] = (catCount[r.category] || 0) + 1; });
+  // Category chart data + click
+  const catKeys = Object.keys(requests.reduce<Record<string, boolean>>((acc, r) => { acc[r.category] = true; return acc; }, {}));
+  const catCounts = catKeys.map((k) => requests.filter((r) => r.category === k).length);
   const catData = {
-    labels: Object.keys(catCount).map((c) => t(`category.${c}`)),
-    datasets: [{ label: t("dashboard.total"), data: Object.values(catCount), backgroundColor: ["#6366f1", "#06b6d4", "#f43f5e", "#eab308", "#8b5cf6"] }],
+    labels: catKeys.map((c) => t(`category.${c}`)),
+    datasets: [{ label: t("dashboard.total"), data: catCounts, backgroundColor: ["#6366f1", "#06b6d4", "#f43f5e", "#eab308", "#8b5cf6"] }],
+  };
+  const onCatClick = (_e: unknown, elements: { index: number }[]) => {
+    if (elements.length > 0) {
+      const idx = elements[0].index;
+      const key = catKeys[idx];
+      setDrillDown({ title: t(`category.${key}`), items: requests.filter((r) => r.category === key) });
+    }
   };
 
-  // Workload chart
+  // Workload chart data + click
   const workloadData = {
     labels: workloadSorted.map((w) => w.name),
     datasets: [{ label: t("dashboard.activeCases"), data: workloadSorted.map((w) => w.count), backgroundColor: "#6366f1" }],
+  };
+  const onWorkloadClick = (_e: unknown, elements: { index: number }[]) => {
+    if (elements.length > 0) {
+      const idx = elements[0].index;
+      const person = workloadSorted[idx];
+      if (person) {
+        setDrillDown({
+          title: `${person.name} — ${t("dashboard.activeCases")}`,
+          items: requests.filter((r) => activeStatuses.includes(r.status) && r.assignee?.name === person.name),
+        });
+      }
+    }
   };
 
   return (
@@ -93,43 +125,47 @@ export default function DashboardPage() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm p-5">
-          <h3 className="font-semibold mb-4">{t("dashboard.statusChart")}</h3>
+          <h3 className="font-semibold mb-1">{t("dashboard.statusChart")}</h3>
+          <p className="text-xs text-slate-400 mb-3">{t("dashboard.clickToView")}</p>
           <div className="max-w-[260px] mx-auto">
-            <Doughnut data={statusData} options={{ plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } } }} />
+            <Doughnut data={statusData} options={{
+              plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+              onClick: onStatusClick,
+            }} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5">
-          <h3 className="font-semibold mb-4">{t("dashboard.categoryChart")}</h3>
-          <Bar data={catData} options={{ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }} />
+          <h3 className="font-semibold mb-1">{t("dashboard.categoryChart")}</h3>
+          <p className="text-xs text-slate-400 mb-3">{t("dashboard.clickToView")}</p>
+          <Bar data={catData} options={{
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            onClick: onCatClick,
+          }} />
         </div>
       </div>
 
-      {/* Charts Row 2: Workload */}
+      {/* Workload */}
       {workloadSorted.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-          <h3 className="font-semibold mb-4">{t("dashboard.workloadChart")}</h3>
+          <h3 className="font-semibold mb-1">{t("dashboard.workloadChart")}</h3>
+          <p className="text-xs text-slate-400 mb-3">{t("dashboard.clickToView")}</p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <Bar data={workloadData} options={{
                 indexAxis: "y" as const,
                 plugins: { legend: { display: false } },
                 scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                onClick: (_e, elements) => {
-                  if (elements.length > 0) {
-                    const idx = elements[0].index;
-                    const person = workloadSorted[idx];
-                    if (person) router.push(`/dashboard/requests?assignee=${encodeURIComponent(person.name)}`);
-                  }
-                },
+                onClick: onWorkloadClick,
               }} />
-              <p className="text-xs text-slate-400 mt-2 text-center">{t("dashboard.clickToView")}</p>
             </div>
             <div>
               <table className="w-full text-sm">
                 <thead><tr className="text-left text-xs text-slate-500 uppercase"><th className="pb-2 pr-3">{t("table.assignee")}</th><th className="pb-2 pr-3">{t("dashboard.activeCases")}</th><th className="pb-2"></th></tr></thead>
                 <tbody>
                   {workloadSorted.map((w) => (
-                    <tr key={w.name} className="border-t border-slate-100">
+                    <tr key={w.name} className="border-t border-slate-100 cursor-pointer hover:bg-slate-50"
+                      onClick={() => setDrillDown({ title: `${w.name} — ${t("dashboard.activeCases")}`, items: requests.filter((r) => activeStatuses.includes(r.status) && r.assignee?.name === w.name) })}>
                       <td className="py-2 pr-3 font-medium">{w.name}</td>
                       <td className="py-2 pr-3">
                         <div className="flex items-center gap-2">
@@ -137,10 +173,7 @@ export default function DashboardPage() {
                           <span className="text-xs font-semibold">{w.count}</span>
                         </div>
                       </td>
-                      <td className="py-2">
-                        <button onClick={() => router.push(`/dashboard/requests?assignee=${encodeURIComponent(w.name)}`)}
-                          className="text-xs text-indigo-600 hover:underline">{t("requests.detail")}</button>
-                      </td>
+                      <td className="py-2 text-xs text-indigo-600">{t("requests.detail")} →</td>
                     </tr>
                   ))}
                 </tbody>
@@ -165,11 +198,10 @@ export default function DashboardPage() {
                 {overdueItems.map((r) => {
                   const days = Math.ceil((now.getTime() - new Date(r.slaDeadline!).getTime()) / (1000 * 60 * 60 * 24));
                   return (
-                    <tr key={r.id} className="border-t border-slate-100">
+                    <tr key={r.id} className="border-t border-slate-100 cursor-pointer hover:bg-red-50"
+                      onClick={() => router.push(`/dashboard/requests?search=${r.code}`)}>
                       <td className="py-2 pr-3">{r.code}</td>
-                      <td className="py-2 pr-3">
-                        <button onClick={() => router.push(`/dashboard/requests?search=${r.code}`)} className="text-indigo-600 hover:underline">{r.title}</button>
-                      </td>
+                      <td className="py-2 pr-3 text-indigo-600">{r.title}</td>
                       <td className="py-2 pr-3">{r.assignee?.name || "-"}</td>
                       <td className="py-2 pr-3"><StatusBadge status={r.status} /></td>
                       <td className="py-2 pr-3 text-xs">{new Date(r.slaDeadline!).toLocaleDateString("th-TH")}</td>
@@ -207,6 +239,56 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Drill-Down Modal */}
+      {drillDown && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">{drillDown.title} ({drillDown.items.length})</h3>
+              <button onClick={() => setDrillDown(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+            {drillDown.items.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="text-left text-xs text-slate-500 uppercase">
+                    <th className="pb-3 pr-3">{t("table.code")}</th><th className="pb-3 pr-3">{t("table.item")}</th>
+                    <th className="pb-3 pr-3">{t("table.location")}</th><th className="pb-3 pr-3">{t("table.status")}</th>
+                    <th className="pb-3 pr-3">{t("table.assignee")}</th><th className="pb-3 pr-3">SLA</th>
+                    <th className="pb-3">{t("table.date")}</th>
+                  </tr></thead>
+                  <tbody>
+                    {drillDown.items.map((r) => {
+                      const isOverdue = r.slaDeadline && activeStatuses.includes(r.status) && new Date(r.slaDeadline) < now;
+                      const overdueDays = isOverdue ? Math.ceil((now.getTime() - new Date(r.slaDeadline!).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                      return (
+                        <tr key={r.id} className={`border-t border-slate-100 cursor-pointer hover:bg-slate-50 ${isOverdue ? "bg-red-50" : ""}`}
+                          onClick={() => { setDrillDown(null); router.push(`/dashboard/requests?search=${r.code}`); }}>
+                          <td className="py-2 pr-3 font-mono text-xs">{r.code}</td>
+                          <td className="py-2 pr-3 text-indigo-600">{r.title}</td>
+                          <td className="py-2 pr-3">{r.location}</td>
+                          <td className="py-2 pr-3"><StatusBadge status={r.status} /></td>
+                          <td className="py-2 pr-3">{r.assignee?.name || "-"}</td>
+                          <td className="py-2 pr-3 text-xs">
+                            {r.slaDeadline ? new Date(r.slaDeadline).toLocaleDateString("th-TH") : "-"}
+                            {isOverdue && <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-bold">+{overdueDays}d</span>}
+                          </td>
+                          <td className="py-2 pr-3 text-xs">{new Date(r.createdAt).toLocaleDateString("th-TH")}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-center text-slate-400 py-8">{t("dashboard.noData")}</p>
+            )}
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setDrillDown(null)} className="px-4 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">{t("action.close")}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
