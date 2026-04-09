@@ -23,9 +23,12 @@
     "users": "User Management",
     "roles": "Role Management",
     "categories": "Case Categories",
+    "interfaceLogs": "Interface Log",
+    "loginLogs": "Login Log",
     "logout": "Sign Out",
     "groupMain": "Main",
     "groupAdmin": "Administration",
+    "groupLogs": "Logs",
     "groupSettings": "Settings"
   },
   "dashboard": {
@@ -253,5 +256,23 @@
     "slaOverdueOnly": "SLA Overdue Only",
     "clear": "Clear Filters",
     "results": "Results"
+  },
+  "logs": {
+    "interfaceTitle": "Interface Log",
+    "interfaceSubtitle": "Monitor all API Request/Response",
+    "loginTitle": "Login Log",
+    "loginSubtitle": "All login attempt history",
+    "time": "Time",
+    "user": "User",
+    "result": "Result",
+    "reason": "Reason",
+    "success": "Success",
+    "failed": "Failed",
+    "allStatus": "All Status",
+    "filterPath": "Search path...",
+    "filterUser": "Search username...",
+    "noLogs": "No logs found",
+    "requestDetail": "Request Detail",
+    "totalAttempts": "Total Attempts"
   }
 }

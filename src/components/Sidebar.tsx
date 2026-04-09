@@ -27,6 +27,13 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    labelKey: "sidebar.groupLogs",
+    items: [
+      { href: "/dashboard/admin/interface-logs", labelKey: "sidebar.interfaceLogs", icon: "📡", permission: "menu:admin" },
+      { href: "/dashboard/admin/login-logs", labelKey: "sidebar.loginLogs", icon: "🔐", permission: "menu:admin" },
+    ],
+  },
+  {
     labelKey: "sidebar.groupSettings",
     items: [
       { href: "/dashboard/settings", labelKey: "sidebar.settings", icon: "⚙️", permission: "menu:settings" },

@@ -23,9 +23,12 @@
     "users": "จัดการผู้ใช้",
     "roles": "จัดการ Role",
     "categories": "ประเภท Case",
+    "interfaceLogs": "Interface Log",
+    "loginLogs": "Login Log",
     "logout": "ออกจากระบบ",
     "groupMain": "หลัก",
     "groupAdmin": "จัดการระบบ",
+    "groupLogs": "บันทึก",
     "groupSettings": "ตั้งค่า"
   },
   "dashboard": {
@@ -253,5 +256,23 @@
     "slaOverdueOnly": "เฉพาะเกิน SLA",
     "clear": "ล้างตัวกรอง",
     "results": "ผลลัพธ์"
+  },
+  "logs": {
+    "interfaceTitle": "Interface Log",
+    "interfaceSubtitle": "ตรวจสอบ API Request/Response ทั้งหมด",
+    "loginTitle": "Login Log",
+    "loginSubtitle": "ประวัติการเข้าสู่ระบบทั้งหมด",
+    "time": "เวลา",
+    "user": "ผู้ใช้",
+    "result": "ผลลัพธ์",
+    "reason": "เหตุผล",
+    "success": "สำเร็จ",
+    "failed": "ไม่สำเร็จ",
+    "allStatus": "ทุกสถานะ",
+    "filterPath": "ค้นหา path...",
+    "filterUser": "ค้นหา username...",
+    "noLogs": "ไม่มีข้อมูล log",
+    "requestDetail": "รายละเอียด Request",
+    "totalAttempts": "ทั้งหมด"
   }
 }
