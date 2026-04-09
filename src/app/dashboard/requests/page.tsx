@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import RequestModal from "@/components/RequestModal";
 import AssignModal from "@/components/AssignModal";
@@ -28,6 +28,7 @@ const CATEGORIES = ["ELECTRICAL", "PLUMBING", "AC", "BUILDING", "OTHER"];
 function RequestsContent() {
   const { t } = useI18n();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [user, setUser] = useState<UserInfo>({ permissions: [] });
   const [createOpen, setCreateOpen] = useState(false);
@@ -123,7 +124,7 @@ function RequestsContent() {
             ⚙️ {t("search.advanced")}
           </button>
           <PermissionGate permissions={perms} required="case:create">
-            <button onClick={() => setCreateOpen(true)} className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">{t("requests.createNew")}</button>
+            <button onClick={() => router.push("/dashboard/requests/create")} className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">{t("requests.createNew")}</button>
           </PermissionGate>
         </div>
 

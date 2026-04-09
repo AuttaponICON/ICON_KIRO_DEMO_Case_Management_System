@@ -225,6 +225,37 @@
     "user:manage": "Manage Users",
     "role:manage": "Manage Roles"
   },
+  "priority": {
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "CRITICAL": "Critical"
+  },
+  "createCase": {
+    "title": "New Request",
+    "subtitle": "Fill in the details to create a maintenance request",
+    "back": "Back",
+    "sectionInfo": "Case Information",
+    "caseTitle": "Case Title",
+    "caseTitlePlaceholder": "e.g. AC not cooling, light not working",
+    "caseDetail": "Case Details",
+    "caseDetailPlaceholder": "Describe the issue in detail",
+    "sectionCategory": "Category",
+    "catLv1": "Main Category (Lv.1)",
+    "catLv2": "Sub-Category (Lv.2)",
+    "noSubCat": "No sub-categories",
+    "sectionLocation": "Location & Priority",
+    "priority": "Priority",
+    "sectionReporter": "Reporter Information",
+    "reporterName": "Reporter Name",
+    "reporterNamePlaceholder": "Full name",
+    "reporterPhone": "Contact Phone",
+    "sectionAttach": "Attachments",
+    "dropzone": "Click to select files or drag & drop here",
+    "dropzoneHint": "Supports images, videos, PDF, Word, Excel",
+    "submit": "Create Case",
+    "saving": "Saving..."
+  },
   "common": {
     "loading": "Loading...",
     "by": "by",

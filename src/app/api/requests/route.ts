@@ -39,6 +39,10 @@ export async function POST(req: Request) {
   const newReq = {
     id: getNextRequestId(), code, title: body.title, location: body.location,
     category: body.category, subCategory: body.subCategory || "", detail: body.detail || null, status: "PENDING",
+    priority: body.priority || "MEDIUM",
+    reporterName: body.reporterName || user?.name || null,
+    reporterPhone: body.reporterPhone || null,
+    attachments: body.attachments || [],
     rootCause: null, resolution: null, cancelReason: null, rejectReason: null,
     slaDeadline: slaDate.toISOString(),
     createdAt: now, updatedAt: now, creatorId: session.userId, assigneeId: null,

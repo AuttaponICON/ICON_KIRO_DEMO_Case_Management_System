@@ -225,6 +225,37 @@
     "user:manage": "จัดการผู้ใช้",
     "role:manage": "จัดการ Role"
   },
+  "priority": {
+    "LOW": "ต่ำ",
+    "MEDIUM": "ปานกลาง",
+    "HIGH": "สูง",
+    "CRITICAL": "เร่งด่วน"
+  },
+  "createCase": {
+    "title": "แจ้งซ่อมใหม่",
+    "subtitle": "กรอกข้อมูลเพื่อสร้างรายการแจ้งซ่อม",
+    "back": "กลับ",
+    "sectionInfo": "ข้อมูล Case",
+    "caseTitle": "หัวข้อ Case",
+    "caseTitlePlaceholder": "เช่น แอร์ไม่เย็น, ไฟไม่ติด",
+    "caseDetail": "รายละเอียดของ Case",
+    "caseDetailPlaceholder": "อธิบายรายละเอียดปัญหาที่พบ",
+    "sectionCategory": "หมวดหมู่",
+    "catLv1": "หมวดหมู่หลัก (Lv.1)",
+    "catLv2": "หมวดหมู่ย่อย (Lv.2)",
+    "noSubCat": "ไม่มีหมวดหมู่ย่อย",
+    "sectionLocation": "สถานที่และลำดับความสำคัญ",
+    "priority": "ลำดับความสำคัญ",
+    "sectionReporter": "ข้อมูลผู้แจ้ง",
+    "reporterName": "ชื่อผู้แจ้ง",
+    "reporterNamePlaceholder": "ชื่อ-นามสกุล",
+    "reporterPhone": "เบอร์ติดต่อ",
+    "sectionAttach": "แนบไฟล์",
+    "dropzone": "คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่",
+    "dropzoneHint": "รองรับ รูปภาพ, วีดีโอ, PDF, Word, Excel",
+    "submit": "สร้าง Case",
+    "saving": "กำลังบันทึก..."
+  },
   "common": {
     "loading": "กำลังโหลด...",
     "by": "โดย",
