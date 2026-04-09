@@ -1,146 +1,183 @@
-# เอกสาร API — ระบบแจ้งซ่อม
+# API Specification — ระบบแจ้งซ่อม (Maintenance Request System)
 
-เวอร์ชัน 2.0 | วันที่ เมษายน 2569 | URL หลัก: http://localhost:3000
-
----
-
-## 1. การยืนยันตัวตน
-
-### POST /api/auth/login — เข้าสู่ระบบ
-
-ข้อมูลที่ส่ง:
-- username (ข้อความ) — ชื่อผู้ใช้
-- password (ข้อความ) — รหัสผ่าน
-
-ตัวอย่าง: { "username": "admin", "password": "1234" }
-
-ผลลัพธ์สำเร็จ (200): ข้อมูลผู้ใช้ + สิทธิ์ทั้งหมด
-ผลลัพธ์ล้มเหลว (401): ข้อความแจ้งเตือน "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
-
-### POST /api/auth/logout — ออกจากระบบ
-
-ลบ session cookie ออก
-ผลลัพธ์ (200): { "ok": true }
-
-### GET /api/auth/me — ข้อมูลผู้ใช้ปัจจุบัน
-
-ต้องเข้าสู่ระบบแล้ว
-ผลลัพธ์ (200): ข้อมูลผู้ใช้ + สิทธิ์
-ผลลัพธ์ (401): ยังไม่ได้เข้าสู่ระบบ
+**Version:** 2.0 | **Date:** April 2026 | **Base URL:** `http://localhost:3000`
 
 ---
 
-## 2. รายการแจ้งซ่อม (Cases)
+## 1. Authentication
 
-### GET /api/requests — ดูรายการทั้งหมด
+### POST /api/auth/login
+เข้าสู่ระบบ
 
-สมาชิกเห็นเฉพาะ Case ที่ตัวเองสร้างหรือได้รับมอบหมาย
-ผู้จัดการ/แอดมินเห็นทั้งหมด
+**Request Body:**
+```json
+{ "username": "admin", "password": "1234" }
+```
 
-### POST /api/requests — สร้างรายการใหม่
+**Response 200:**
+```json
+{
+  "id": 1, "username": "admin", "name": "ผู้ดูแลระบบ",
+  "role": "admin", "permissions": ["menu:dashboard", "case:create", ...]
+}
+```
 
-ต้องมีสิทธิ์ case:create
+**Response 401:**
+```json
+{ "error": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }
+```
 
-ข้อมูลที่ส่ง:
-- title (ข้อความ, จำเป็น) — หัวข้อ Case
-- location (ข้อความ, จำเป็น) — สถานที่
-- category (ข้อความ, จำเป็น) — หมวดหมู่หลัก เช่น AC, ELECTRICAL
-- subCategory (ข้อความ) — หมวดหมู่ย่อย เช่น แอร์ไม่เย็น
-- priority (ข้อความ) — ลำดับความสำคัญ: LOW, MEDIUM, HIGH, CRITICAL
-- detail (ข้อความ) — รายละเอียด
-- reporterName (ข้อความ) — ชื่อผู้แจ้ง
-- reporterPhone (ข้อความ) — เบอร์ติดต่อ
-- attachments (รายการ) — ไฟล์แนบ
+### POST /api/auth/logout
+ออกจากระบบ — ลบ session cookie
 
-ระบบจะสร้างรหัสอัตโนมัติ (REQ-XXX) และคำนวณ SLA จากหมวดหมู่ย่อย
+**Response 200:** `{ "ok": true }`
 
-### GET /api/requests/[id] — ดูรายละเอียด Case พร้อมประวัติ
+### GET /api/auth/me
+ข้อมูลผู้ใช้ปัจจุบัน (ต้อง login แล้ว)
 
-### DELETE /api/requests/[id] — ลบ Case
-
----
-
-## 3. การดำเนินการ Case (Workflow)
-
-### POST /api/requests/[id]/assign — มอบหมายงาน
-- สิทธิ์: case:assign
-- สถานะต้องเป็น: รอดำเนินการ (PENDING)
-- ข้อมูล: assigneeId (ตัวเลข), comment (ข้อความ)
-
-### POST /api/requests/[id]/cancel — ยกเลิก Case
-- สิทธิ์: case:cancel
-- สถานะต้องเป็น: รอดำเนินการ (PENDING)
-- ข้อมูล: reason (ข้อความ, จำเป็น)
-
-### POST /api/requests/[id]/resolve — ส่งผลการแก้ไข
-- สิทธิ์: case:resolve
-- สถานะต้องเป็น: มอบหมายแล้ว/กำลังดำเนินการ/ถูกปฏิเสธ
-- ข้อมูล: rootCause (ข้อความ, จำเป็น), resolution (ข้อความ, จำเป็น)
-
-### POST /api/requests/[id]/approve — อนุมัติ
-- สิทธิ์: case:approve
-- สถานะต้องเป็น: ส่งผลแก้ไขแล้ว (RESOLVED)
-
-### POST /api/requests/[id]/reject — ปฏิเสธ
-- สิทธิ์: case:approve
-- สถานะต้องเป็น: ส่งผลแก้ไขแล้ว (RESOLVED)
-- ข้อมูล: reason (ข้อความ, จำเป็น)
-
-### POST /api/requests/[id]/complete — เสร็จสิ้น
-- สิทธิ์: case:complete
-- สถานะต้องเป็น: อนุมัติแล้ว (APPROVED)
+**Response 200:** เหมือน login response
+**Response 401:** `{ "error": "Unauthorized" }`
 
 ---
 
-## 4. ผู้ใช้งาน
+## 2. Requests (Cases)
 
-### GET /api/users — รายชื่อผู้ใช้ทั้งหมด
-### POST /api/users — สร้างผู้ใช้ใหม่ (สิทธิ์: user:manage)
-### GET/PUT/DELETE /api/users/[id] — ดู/แก้ไข/ลบผู้ใช้
-### GET /api/users/members — รายชื่อเฉพาะผู้จัดการและสมาชิก (สำหรับมอบหมายงาน)
+### GET /api/requests
+รายการแจ้งซ่อมทั้งหมด (filter ตาม role — member เห็นเฉพาะของตัวเอง)
 
----
+**Response 200:** Array of Request objects
 
-## 5. บทบาท (Roles)
+### POST /api/requests
+สร้างรายการแจ้งซ่อมใหม่ — ต้องมี permission `case:create`
 
-### GET /api/roles — รายการบทบาททั้งหมด
-### POST /api/roles — สร้างบทบาทใหม่ (สิทธิ์: role:manage)
-### GET/PUT/DELETE /api/roles/[id] — ดู/แก้ไข/ลบบทบาท
+**Request Body:**
+```json
+{
+  "title": "แอร์ไม่เย็น",
+  "location": "ภายในอาคาร > ชั้น 3",
+  "category": "AC",
+  "subCategory": "แอร์ไม่เย็น",
+  "priority": "HIGH",
+  "detail": "รายละเอียด",
+  "reporterName": "สมชาย",
+  "reporterPhone": "081-xxx-xxxx",
+  "attachments": [{ "name": "photo.jpg", "type": "image/jpeg", "size": 102400 }]
+}
+```
 
----
+**Response 201:** Request object with auto-generated code, SLA deadline
 
-## 6. หมวดหมู่ Case
+### GET /api/requests/[id]
+รายละเอียด case พร้อม history
 
-### GET /api/categories — รายการหมวดหมู่ (2 ระดับ + SLA)
-### POST /api/categories — สร้างหมวดหมู่/หมวดหมู่ย่อย
-### PUT /api/categories — แก้ไขหมวดหมู่
-### DELETE /api/categories?type=subCategory&id=1 — ลบหมวดหมู่
-
----
-
-## 7. ข้อมูลหลัก (Master Data)
-
-### GET /api/master/locations — รายการสถานที่ (2 ระดับ)
-### POST /api/master/locations — เพิ่มกลุ่ม/รายการสถานที่
-### DELETE /api/master/locations?type=parent&id=1 — ลบสถานที่
-
----
-
-## 8. บันทึก (Logs)
-
-### GET /api/logs/interface — บันทึก API (ข้อมูลที่ส่ง/ตอบกลับ)
-### GET /api/logs/login — ประวัติการเข้าสู่ระบบ
+### DELETE /api/requests/[id]
+ลบ case — ต้องมี permission `case:cancel`
 
 ---
 
-## ลำดับสถานะ Case
+## 3. Case Workflow Actions
 
-รอดำเนินการ -> มอบหมายแล้ว -> ส่งผลแก้ไขแล้ว -> อนุมัติแล้ว -> เสร็จสิ้น
-รอดำเนินการ -> ยกเลิก
-ส่งผลแก้ไขแล้ว -> ถูกปฏิเสธ -> ส่งผลแก้ไขแล้ว (วนซ้ำ)
+### POST /api/requests/[id]/assign
+มอบหมายงาน — permission: `case:assign`, status ต้องเป็น PENDING
 
-## สิทธิ์ทั้งหมด (13 รายการ)
+**Body:** `{ "assigneeId": 3, "comment": "มอบหมายให้สมชาย" }`
 
-กลุ่มเมนู: menu:dashboard, menu:requests, menu:reports, menu:settings, menu:admin
-กลุ่ม Case: case:create, case:assign, case:cancel, case:resolve, case:approve, case:complete
-กลุ่มจัดการ: user:manage, role:manage
+### POST /api/requests/[id]/cancel
+ยกเลิก case — permission: `case:cancel`, status ต้องเป็น PENDING
+
+**Body:** `{ "reason": "ซ้ำกับเคสอื่น" }`
+
+### POST /api/requests/[id]/resolve
+ส่งผลแก้ไข — permission: `case:resolve`, status: ASSIGNED/IN_PROGRESS/REJECTED
+
+**Body:** `{ "rootCause": "ซีลยางเสื่อม", "resolution": "เปลี่ยนซีลยางใหม่" }`
+
+### POST /api/requests/[id]/approve
+อนุมัติ — permission: `case:approve`, status ต้องเป็น RESOLVED
+
+### POST /api/requests/[id]/reject
+ปฏิเสธ — permission: `case:approve`, status ต้องเป็น RESOLVED
+
+**Body:** `{ "reason": "ข้อมูลไม่ครบ" }`
+
+### POST /api/requests/[id]/complete
+เสร็จสิ้น — permission: `case:complete`, status ต้องเป็น APPROVED
+
+---
+
+## 4. Users
+
+### GET /api/users
+รายชื่อผู้ใช้ทั้งหมด (พร้อม role, email, phone, department, position)
+
+### POST /api/users
+สร้างผู้ใช้ใหม่ — permission: `user:manage`
+
+### GET/PUT/DELETE /api/users/[id]
+ดู/แก้ไข/ลบผู้ใช้
+
+### GET /api/users/members
+รายชื่อเฉพาะ manager + member (สำหรับ assign dropdown)
+
+---
+
+## 5. Roles
+
+### GET /api/roles | POST /api/roles
+รายการ/สร้าง Role — permission: `role:manage`
+
+### GET/PUT/DELETE /api/roles/[id]
+ดู/แก้ไข/ลบ Role
+
+---
+
+## 6. Categories
+
+### GET /api/categories
+รายการประเภท Case (2 level + SLA)
+
+### POST /api/categories
+สร้างประเภท/ประเภทย่อย
+
+### PUT /api/categories
+แก้ไขประเภท/ประเภทย่อย
+
+### DELETE /api/categories?type=subCategory&id=1
+ลบประเภท/ประเภทย่อย
+
+---
+
+## 7. Master Data
+
+### GET /api/master/locations
+รายการสถานที่ (2 level)
+
+### POST /api/master/locations
+เพิ่มกลุ่ม/รายการสถานที่
+
+### DELETE /api/master/locations?type=parent&id=1
+ลบสถานที่
+
+---
+
+## 8. Logs
+
+### GET /api/logs/interface
+Interface Log — บันทึก API request/response
+
+### GET /api/logs/login
+Login Log — ประวัติการเข้าสู่ระบบ
+
+---
+
+## Status Flow
+```
+PENDING → ASSIGNED → RESOLVED → APPROVED → COMPLETED
+       → CANCELLED              → REJECTED → RESOLVED (loop)
+       → IN_PROGRESS → RESOLVED
+```
+
+## Permissions (13 keys)
+menu:dashboard, menu:requests, menu:reports, menu:settings, menu:admin,
+case:create, case:assign, case:cancel, case:resolve, case:approve, case:complete,
+user:manage, role:manage

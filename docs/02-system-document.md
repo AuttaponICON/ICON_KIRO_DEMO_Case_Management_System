@@ -1,123 +1,132 @@
-# เอกสารระบบ — ระบบแจ้งซ่อม
+# System Document — ระบบแจ้งซ่อม (Maintenance Request System)
 
-เวอร์ชัน 2.0 | วันที่ เมษายน 2569
+**Version:** 2.0 | **Date:** April 2026
 
 ---
 
-## 1. ภาพรวม
+## 1. Overview
 
-ระบบแจ้งซ่อม (Case Management System) เป็นเว็บแอปพลิเคชันสำหรับจัดการงานแจ้งซ่อมบำรุง รองรับ Workflow ตั้งแต่การสร้าง Case จนถึงเสร็จสิ้น พร้อมระบบจัดการสิทธิ์ตามบทบาท (RBAC) การติดตาม SLA และรายงาน
+ระบบแจ้งซ่อม (Case Management System) เป็น Web Application สำหรับจัดการงานแจ้งซ่อมบำรุง รองรับ Workflow ตั้งแต่การสร้าง Case จนถึง Complete พร้อมระบบ RBAC, SLA Tracking, และ Reporting
 
-## 2. เทคโนโลยีที่ใช้
+## 2. Tech Stack
 
-| ส่วนประกอบ | เทคโนโลยี |
+| Component | Technology |
 |-----------|-----------|
-| ส่วนหน้า (Frontend) | Next.js 15 (App Router) + React 19 |
-| การจัดรูปแบบ | Tailwind CSS 4 |
-| ส่วนหลัง (Backend) | Next.js API Routes |
-| ฐานข้อมูล | Prisma + PostgreSQL |
-| การยืนยันตัวตน | iron-session (cookie) |
-| กราฟ | Chart.js + react-chartjs-2 |
-| ส่งออกเอกสาร | jsPDF + xlsx |
-| ภาษาโปรแกรม | TypeScript |
-| คอนเทนเนอร์ | Docker + docker-compose |
+| Frontend | Next.js 15 (App Router) + React 19 |
+| Styling | Tailwind CSS 4 |
+| Backend | Next.js API Routes |
+| ORM | Prisma (PostgreSQL) |
+| Auth | iron-session (cookie-based) |
+| Charts | Chart.js + react-chartjs-2 |
+| Export | jsPDF + xlsx |
+| Language | TypeScript |
+| Container | Docker + docker-compose |
 
-## 3. สถาปัตยกรรม
+## 3. Architecture
 
-### 3.1 โครงสร้างไฟล์
-- src/app/ — หน้าเว็บทั้งหมด (Next.js App Router)
-- src/app/page.tsx — หน้าเข้าสู่ระบบ
-- src/app/dashboard/ — หน้าที่ต้องเข้าสู่ระบบก่อน
-- src/app/dashboard/requests/ — จัดการ Case
-- src/app/dashboard/requests/create/ — สร้าง Case (หน้าเดียว)
-- src/app/dashboard/requests/[id]/ — รายละเอียด Case (หน้าเดียว)
-- src/app/dashboard/requests/import/ — นำเข้าจาก Excel
-- src/app/dashboard/reports/ — รายงาน + ส่งออก
-- src/app/dashboard/admin/ — หน้าจัดการระบบ
-- src/app/api/ — API Routes ทั้งหมด
-- src/components/ — ส่วนประกอบที่ใช้ซ้ำ
-- src/lib/ — เครื่องมือช่วย
-- src/locales/ — ไฟล์ภาษา (th.json, en.json)
+### 3.1 File Structure
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── page.tsx           # Login
+│   ├── dashboard/         # Protected pages
+│   │   ├── page.tsx       # Dashboard + Charts
+│   │   ├── requests/      # Case management
+│   │   │   ├── page.tsx   # Case list
+│   │   │   ├── create/    # Create case (one-page)
+│   │   │   ├── [id]/      # Case detail (one-page)
+│   │   │   └── import/    # Import from Excel
+│   │   ├── reports/       # Reports + Export
+│   │   ├── settings/      # Settings
+│   │   └── admin/         # Admin pages
+│   └── api/               # API Routes
+├── components/            # Reusable components
+├── lib/                   # Utilities
+└── locales/               # i18n (th.json, en.json)
+```
 
-### 3.2 ขั้นตอนการยืนยันตัวตน
-1. ผู้ใช้เข้าหน้าเข้าสู่ระบบ กรอกชื่อผู้ใช้/รหัสผ่าน
-2. ระบบตรวจสอบ สร้าง cookie เข้ารหัส (อายุ 2 ชั่วโมง)
-3. ทุกหน้าตรวจสอบ session ผ่าน API
-4. หากไม่มีการใช้งาน 2 ชั่วโมง จะออกจากระบบอัตโนมัติ
+### 3.2 Authentication Flow
+1. User เข้าหน้า Login → กรอก username/password
+2. POST /api/auth/login → ตรวจสอบ → สร้าง encrypted cookie (TTL 2 ชม.)
+3. ทุกหน้า Dashboard ตรวจสอบ session ผ่าน GET /api/auth/me
+4. Idle timeout 2 ชม. → auto logout + redirect กลับ Login
 
-### 3.3 ขั้นตอนการทำงาน Case
-- รอดำเนินการ -> มอบหมายแล้ว (ผู้จัดการมอบหมาย)
-- มอบหมายแล้ว -> ส่งผลแก้ไขแล้ว (สมาชิกส่งผล)
-- ส่งผลแก้ไขแล้ว -> อนุมัติแล้ว (ผู้จัดการอนุมัติ)
-- ส่งผลแก้ไขแล้ว -> ถูกปฏิเสธ (ผู้จัดการปฏิเสธ)
-- ถูกปฏิเสธ -> ส่งผลแก้ไขแล้ว (สมาชิกแก้ไขใหม่)
-- อนุมัติแล้ว -> เสร็จสิ้น (ผู้จัดการปิดงาน)
-- รอดำเนินการ -> ยกเลิก (ผู้จัดการยกเลิก + เหตุผล)
+### 3.3 Case Workflow
+```
+PENDING → ASSIGNED (Manager assign) → RESOLVED (Member ส่งผล)
+       → CANCELLED (Manager ยกเลิก)   → APPROVED (Manager อนุมัติ)
+       → IN_PROGRESS (Manager ทำเอง)   → REJECTED (Manager ปฏิเสธ)
+                                        → COMPLETED (Manager complete)
+```
 
-## 4. ระบบจัดการสิทธิ์ตามบทบาท (RBAC)
+## 4. Role-Based Access Control (RBAC)
 
-### 4.1 บทบาทเริ่มต้น
-| บทบาท | คำอธิบาย |
-|------|---------|
-| admin (ผู้ดูแลระบบ) | เข้าถึงทุกฟังก์ชัน จัดการผู้ใช้/บทบาท/สิทธิ์ |
+### 4.1 Default Roles
+| Role | Description |
+|------|------------|
+| admin | เข้าถึงทุกฟังก์ชัน จัดการ User/Role/Permission |
 | vip | สร้าง Case + ดูรายงาน |
-| manager (ผู้จัดการ) | จัดการ Workflow (มอบหมาย/อนุมัติ/ปฏิเสธ/เสร็จสิ้น) |
-| member (สมาชิก) | สร้าง Case + ส่งผลการแก้ไข |
+| manager | จัดการ Case workflow (assign/approve/reject/complete) |
+| member | สร้าง Case + ส่งผลแก้ไข |
 
-### 4.2 ระบบสิทธิ์
-- มี 13 สิทธิ์ แบ่ง 3 กลุ่ม: เมนู, Case, จัดการระบบ
-- ใช้ Permission Tree สำหรับกำหนดสิทธิ์แบบภาพ
-- หน้าจอซ่อนเมนู/ปุ่มที่ไม่มีสิทธิ์โดยอัตโนมัติ
+### 4.2 Permission System
+- 13 permissions แบ่ง 3 กลุ่ม: Menu, Case, Admin
+- Permission Tree UI สำหรับกำหนดสิทธิ์แบบ visual
+- UI ซ่อนเมนู/ปุ่มที่ไม่มีสิทธิ์อัตโนมัติ
 
-## 5. ฟีเจอร์ทั้งหมด
+## 5. Features
 
-### 5.1 แดชบอร์ด
-- การ์ดสรุป (ทั้งหมด, รอ, กำลังดำเนินการ, เสร็จ, เกิน SLA)
-- กราฟวงกลมสถานะ + กราฟแท่งประเภท
-- กราฟภาระงานต่อคน
-- ตาราง SLA เกินกำหนด
-- ค้นหาขั้นสูง + ตัวกรอง
-- กดกราฟดูรายละเอียด -> กด Case เปิดแท็บใหม่
+### 5.1 Dashboard
+- Stat Cards (ทั้งหมด, รอ, กำลังดำเนินการ, เสร็จ, SLA Overdue)
+- Status Doughnut Chart + Category Bar Chart
+- Workload per Person Chart
+- SLA Overdue Table
+- Advanced Search + Filter
+- Drill-down: กดกราฟ → popup รายการ → กด case → new tab detail
 
-### 5.2 จัดการ Case
-- สร้าง Case (หน้าเดียว): หัวข้อ, รายละเอียด, หมวดหมู่ 2 ระดับ, สถานที่ (dropdown), ลำดับความสำคัญ, ผู้แจ้ง, แนบไฟล์
-- รายละเอียด Case (หน้าเดียว): ข้อมูลครบ + ปุ่ม Workflow + ประวัติ
-- รายการ Case: ตาราง + ค้นหาขั้นสูง + กดแถวเปิดแท็บใหม่
-- นำเข้า Case: อัพโหลด Excel + ตัวอย่าง + นำเข้าทีเดียว
-- SLA คำนวณอัตโนมัติจากหมวดหมู่ย่อย
+### 5.2 Case Management
+- Create Case (One Page): หัวข้อ, รายละเอียด, หมวดหมู่ Lv1/Lv2, สถานที่ (dropdown), ลำดับความสำคัญ, ผู้แจ้ง, แนบไฟล์
+- Case Detail (One Page): แสดงข้อมูลครบ + workflow buttons + history timeline
+- Case List: ตาราง + advanced search + กดแถว → new tab
+- Import Case: upload Excel + preview + batch import
+- SLA คำนวณอัตโนมัติจาก sub-category
 
-### 5.3 รายงาน
-- สรุปตามสถานะ/ประเภท + กราฟ
-- กรองตามปี/เดือน
-- ส่งออก PDF + Excel
+### 5.3 Reports
+- สรุปตามสถานะ/ประเภท + Charts
+- Filter ปี/เดือน
+- Export PDF + Excel
 
-### 5.4 จัดการระบบ (เฉพาะแอดมิน)
-- จัดการผู้ใช้ (ชื่อผู้ใช้, ชื่อ, อีเมล, เบอร์โทร, แผนก, ตำแหน่ง, บทบาท)
-- จัดการบทบาท + Permission Tree
-- ตั้งค่าหมวดหมู่ Case (2 ระดับ + SLA ต่อหมวดหมู่ย่อย)
-- ข้อมูลหลัก (สถานที่ 2 ระดับ)
-- บันทึก API (ดูข้อมูลที่ส่ง/ตอบกลับ)
-- บันทึกการเข้าสู่ระบบ (สำเร็จ/ไม่สำเร็จ + IP)
+### 5.4 Admin
+- User Management (username, name, email, phone, department, position, role)
+- Role Management + Permission Tree
+- Category Config (2 Level + SLA per sub-category)
+- Master Data (Location Lv1/Lv2)
+- Interface Log (API request/response viewer)
+- Login Log (success/failed + IP + user agent)
 
-### 5.5 รองรับหลายภาษา
-- รองรับ ไทย/อังกฤษ
+### 5.5 i18n
+- รองรับ ไทย/English
 - ไฟล์ภาษาแยก: src/locales/th.json, en.json
 - เพิ่มภาษาใหม่: สร้างไฟล์ + เพิ่มใน i18n.tsx
 
-## 6. การติดตั้ง
+## 6. Deployment
 
-### ผ่าน Docker
+### Docker
+```bash
 docker compose up -d
+```
 
-### ติดตั้งเอง
+### Manual
+```bash
 npm install
 npx prisma db push
 npm run db:seed
 npm run build
 npm start
+```
 
-## 7. ตัวแปรสภาพแวดล้อม
-| ตัวแปร | คำอธิบาย |
-|--------|---------|
-| DATABASE_URL | ที่อยู่ฐานข้อมูล PostgreSQL |
-| SESSION_SECRET | กุญแจเข้ารหัส Cookie (อย่างน้อย 32 ตัวอักษร) |
+## 7. Environment Variables
+| Variable | Description |
+|----------|-----------|
+| DATABASE_URL | PostgreSQL connection string |
+| SESSION_SECRET | Cookie encryption key (min 32 chars) |
